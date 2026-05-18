@@ -1,0 +1,8 @@
+{
+  "crons": [
+    {
+      "path": "/api/football/refresh",
+      "schedule": "0 6 * * *"
+    }
+  ]
+}
