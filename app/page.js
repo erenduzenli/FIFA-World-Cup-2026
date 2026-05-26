@@ -83,12 +83,6 @@ const rules = [
   "Ödül: %60 / %30 / %10",
 ];
 
-const leaderboard = [
-  { rank: 1, name: "Mert Alperten", points: 0 },
-  { rank: 2, name: "Samil Yasar", points: 0 },
-  { rank: 3, name: "Eren", points: 0 },
-];
-
 const css = {
   page: { minHeight: "100vh", background: "linear-gradient(180deg,#071634,#020a1f)", color: "#e2e8f0", fontFamily: "Arial, sans-serif" },
   wrap: { maxWidth: 1200, margin: "0 auto", padding: "0 20px" },
@@ -221,10 +215,23 @@ export default function Page() {
   const [submitted, setSubmitted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [manualRedCards, setManualRedCards] = useState({});
+  const [participants, setParticipants] = useState([]);
+  const [selectionsVisible, setSelectionsVisible] = useState(false);
 
   const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
   const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures, manualRedCards), [fixtures, manualRedCards]);
+  const leaderboardRows = useMemo(() => {
+  return participants
+    .map((p) => ({
+      ...p,
+      points: p.picks.reduce((sum, team) => {
+        const row = teamPoints.find((x) => x.team === team);
+        return sum + (row?.totalPoints || 0);
+      }, 0),
+    }))
+    .sort((a, b) => b.points - a.points || a.submittedAt - b.submittedAt);
+  }, [participants, teamPoints]);
 
   const tabs = [
     ["leaderboard", "🏆", "Lig Tablosu"],
@@ -263,7 +270,36 @@ export default function Page() {
       [team]: value.replace(/[^0-9]/g, ""),
     }));
   }
+function submitPicks() {
+  if (!name.trim() || !pin.trim() || !champion.trim() || !scorer.trim()) return;
+  if (completed !== pots.length) return;
 
+  const picks = pots.map((p) => selection[p.id]);
+
+  setParticipants((prev) => [
+    ...prev,
+    {
+      id: Date.now(),
+      name: name.trim(),
+      pin: pin.trim(),
+      picks,
+      champion: champion.trim(),
+      scorer: scorer.trim(),
+      submittedAt: Date.now(),
+    },
+  ]);
+
+  setSubmitted(true);
+}
+
+function deleteParticipant(id) {
+  setParticipants((prev) => prev.filter((p) => p.id !== id));
+}
+
+function canSeeParticipant(participant) {
+  if (isAdmin || selectionsVisible) return true;
+  return participant.name === name.trim() && participant.pin === pin.trim();
+}
   return (
     <div style={css.page}>
       <header style={css.header}>
@@ -300,16 +336,79 @@ export default function Page() {
           <>
             <h1 style={css.h1}>Lig Tablosu</h1>
             <p style={css.desc}>Anlık puan sıralaması</p>
-            <div style={css.card}>
-              <div style={{ ...css.row, ...css.head, gridTemplateColumns: "70px 2fr 1fr 1fr 1fr" }}>
-                <div>#</div><div>Ad Soyad</div><div>Puan</div><div>Şampiyon</div><div>Gol Kralı</div>
-              </div>
-              {leaderboard.map((x) => (
-                <div key={x.rank} style={{ ...css.row, gridTemplateColumns: "70px 2fr 1fr 1fr 1fr" }}>
-                  <div>{x.rank}</div><div>{x.name}</div><div style={{ color: "#facc15", fontWeight: 900, fontSize: 26 }}>{x.points}</div><div>?</div><div>?</div>
-                </div>
-              ))}
+          <div style={css.card}>
+  <div style={{ overflowX: "auto" }}>
+    <div
+      style={{
+        ...css.row,
+        ...css.head,
+        gridTemplateColumns: isAdmin
+          ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr 90px"
+          : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
+        minWidth: 1500,
+      }}
+    >
+      <div>#</div>
+      <div>Ad Soyad</div>
+      <div>Puan</div>
+
+      {pots.map((p) => (
+        <div key={p.id}>Grup {p.id}</div>
+      ))}
+
+      <div>Şampiyon</div>
+      <div>Gol Kralı</div>
+
+      {isAdmin && <div>Sil</div>}
+    </div>
+
+    {leaderboardRows.length === 0 ? (
+      <div style={{ padding: 18, color: "#94a3b8" }}>
+        Henüz katılımcı yok.
+      </div>
+    ) : (
+      leaderboardRows.map((p, index) => {
+        const visible = canSeeParticipant(p);
+
+        return (
+          <div
+            key={p.id}
+            style={{
+              ...css.row,
+              gridTemplateColumns: isAdmin
+                ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr 90px"
+                : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
+              minWidth: 1500,
+            }}
+          >
+            <div>{index + 1}</div>
+            <div>{p.name}</div>
+
+            <div style={{ color: "#facc15", fontWeight: 900 }}>
+              {p.points}
             </div>
+
+            {p.picks.map((pick, i) => (
+              <div key={i}>{visible ? pick : "Gizli"}</div>
+            ))}
+
+            <div>{visible ? p.champion : "Gizli"}</div>
+            <div>{visible ? p.scorer : "Gizli"}</div>
+
+            {isAdmin && (
+              <button
+                style={css.dangerBtn}
+                onClick={() => deleteParticipant(p.id)}
+              >
+                Sil
+              </button>
+            )}
+          </div>
+        );
+      })
+    )}
+  </div>
+</div>
           </>
         )}
 
@@ -424,9 +523,21 @@ export default function Page() {
   <p style={css.desc}>Seçimler admin görünür yapana kadar gizli kalır.</p>
 
   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
-    <div style={css.box}>10 kişi kayıt oldu</div>
-    <div style={css.box}>7 kişi seçimini gönderdi</div>
-    <div style={css.box}>Seçimler gizli</div>
+    <div style={css.box}>{participants.length} kişi kayıt oldu</div>
+    <div style={css.box}>{participants.length} kişi seçimini gönderdi</div>
+    <div style={css.box}>
+  {selectionsVisible ? "Seçimler görünür" : "Seçimler gizli"}
+</div>
+  {isAdmin && (
+  <button
+    style={{ ...css.btn(true), marginTop: 14 }}
+    onClick={() => setSelectionsVisible((v) => !v)}
+  >
+    {selectionsVisible
+      ? "Seçimleri Gizle"
+      : "Seçimleri Göster"}
+  </button>
+)}
   </div>
 </div>
           </>
@@ -456,7 +567,7 @@ export default function Page() {
                 <input style={css.input} placeholder="Gol Kralı Tahmini" value={scorer} onChange={(e) => setScorer(e.target.value)} />
               </div>
               <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-                <button style={css.btn(false)}>Kaydet</button><button style={css.btn(true)} onClick={() => setSubmitted(true)}>Gönder</button>
+                <button style={css.btn(false)}>Kaydet</button><button style={css.btn(true)} onClick={submitPicks}>Gönder</button>
               </div>
               {submitted && <div style={{ ...css.box, marginTop: 16, color: "#86efac" }}>Seçim gönderildi. Artık değiştirilemez.</div>}
             </div>
