@@ -154,36 +154,54 @@ function calculateStandings(fixtures) {
 
 function calculateTeamGamePoints(fixtures) {
   const points = {};
-  groups.forEach(([group, teams]) => {
+
+  groups.forEach(([, teams]) => {
     teams.forEach((team) => {
-      points[team] = { team, group, gamePoints: 0, goals: 0, redCards: 0 };
+      points[team] = {
+        team,
+        totalPoints: 0,
+        matchPoints: 0,
+        goals: 0,
+        redCards: 0,
+        conceded: 0,
+      };
     });
   });
 
   fixtures.forEach((m) => {
     if (m.homeGoals === "" || m.awayGoals === "") return;
     if (m.home === "TBD" || m.away === "TBD") return;
+
     const hg = Number(m.homeGoals);
     const ag = Number(m.awayGoals);
+    const hrc = Number(m.homeRedCards || 0);
+    const arc = Number(m.awayRedCards || 0);
+
     if (!Number.isFinite(hg) || !Number.isFinite(ag)) return;
-    if (!points[m.home]) points[m.home] = { team: m.home, group: m.group, gamePoints: 0, goals: 0, redCards: 0 };
-    if (!points[m.away]) points[m.away] = { team: m.away, group: m.group, gamePoints: 0, goals: 0, redCards: 0 };
 
     points[m.home].goals += hg;
     points[m.away].goals += ag;
-    points[m.home].gamePoints += hg;
-    points[m.away].gamePoints += ag;
 
-    if (hg > ag) points[m.home].gamePoints += 3;
-    else if (hg < ag) points[m.away].gamePoints += 3;
+    points[m.home].conceded += ag;
+    points[m.away].conceded += hg;
+
+    points[m.home].redCards += hrc;
+    points[m.away].redCards += arc;
+
+    if (hg > ag) points[m.home].matchPoints += 3;
+    else if (ag > hg) points[m.away].matchPoints += 3;
     else {
-      points[m.home].gamePoints += 1;
-      points[m.away].gamePoints += 1;
+      points[m.home].matchPoints += 1;
+      points[m.away].matchPoints += 1;
     }
   });
 
+  Object.values(points).forEach((t) => {
+    t.totalPoints = t.matchPoints + t.goals - t.redCards;
+  });
+
   return Object.values(points).sort(
-  (a, b) => b.gamePoints - a.gamePoints || a.team.localeCompare(b.team)
+    (a, b) => b.totalPoints - a.totalPoints || a.team.localeCompare(b.team)
   );
 }
 
@@ -235,7 +253,7 @@ export default function Page() {
   }
 
   function resetFixture(id) {
-    setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, homeGoals: "", awayGoals: "", status: "Yakında", locked: false } : m));
+    setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, homeGoals: "", awayGoals: "", homeRedCards: "", awayRedCards: "", status: "Yakında", locked: false } : m));
   }
 
   return (
@@ -314,15 +332,19 @@ export default function Page() {
             <p style={css.desc}>{isAdmin ? "Admin skorları girebilir, değiştirebilir veya sıfırlayabilir." : "Maç programı. Skor düzenleme sadece admin tarafından yapılır."}</p>
             <div style={{ display: "grid", gap: 12 }}>
               {fixtures.map((m) => (
-                <div key={m.id} style={{ ...css.card, padding: 16, display: "grid", gridTemplateColumns: isAdmin ? "0.8fr 0.7fr 1.4fr 80px 80px 1.4fr 1fr 250px" : "0.8fr 0.7fr 1.4fr 0.8fr 1.4fr 1fr", gap: 10, alignItems: "center" }}>
+                <div key={m.id} style={{ ...css.card, padding: 16, display: "grid", gridTemplateColumns: isAdmin ? "0.8fr 0.7fr 1.4fr 70px 70px 70px 70px 1.4fr 1fr 250px" : "0.8fr 0.7fr 1.4fr 0.8fr 1.4fr 1fr", gap: 10, alignItems: "center" }}>
                   <div>{m.stage}</div>
                   <div>{m.group !== "-" ? `Grup ${m.group}` : "-"}</div>
                   <div>{m.home}</div>
                   {isAdmin ? (
                     <>
-                      <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.homeGoals} onChange={(e) => updateFixture(m.id, "homeGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="0" />
-                      <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.awayGoals} onChange={(e) => updateFixture(m.id, "awayGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="0" />
-                    </>
+                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.homeGoals} onChange={(e) => updateFixture(m.id, "homeGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="Gol" />
+
+                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.awayGoals} onChange={(e) => updateFixture(m.id, "awayGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="Gol" />
+
+                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.homeRedCards || ""} onChange={(e) => updateFixture(m.id, "homeRedCards", e.target.value.replace(/[^0-9]/g, ""))} placeholder="KK" />
+
+                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.awayRedCards || ""} onChange={(e) => updateFixture(m.id, "awayRedCards", e.target.value.replace(/[^0-9]/g, ""))} placeholder="KK" />
                   ) : (
                     <div style={{ color: "#facc15", fontWeight: 800, textAlign: "center" }}>{m.homeGoals === "" || m.awayGoals === "" ? "-" : `${m.homeGoals}-${m.awayGoals}`}</div>
                   )}
@@ -346,12 +368,12 @@ export default function Page() {
             <h1 style={css.h1}>Takım Puanları</h1>
             <p style={css.desc}>Takım katkısı = maç puanı + attığı gol. Örn. 3-1 galibiyet = 3 + 3 = 6.</p>
             <div style={css.card}>
-              <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr 0.8fr 1fr 1fr 1fr" }}>
-                <div>Takım</div><div>Grup</div><div>Puan</div><div>Gol</div><div>RC</div>
+              <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
+                <div>Takım</div><div>Toplam Puan</div><div>Puan</div><div>Gol</div><div>Kırmızı Kart</div><div>Yediği Gol</div>
               </div>
               {teamPoints.map((x) => (
-                <div key={`${x.group}-${x.team}`} style={{ ...css.row, gridTemplateColumns: "2fr 0.8fr 1fr 1fr 1fr" }}>
-                  <div>{x.team}</div><div>{x.group}</div><div style={{ color: "#facc15", fontWeight: 800 }}>{x.gamePoints}</div><div>{x.goals}</div><div>{x.redCards}</div>
+                <div key={`${x.group}-${x.team}`} style={{ ...css.row, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
+                  <div>{x.team}</div><div style={{ color: "#facc15", fontWeight: 800 }}>{x.totalPoints}</div><div>{x.matchPoints}</div><div>{x.goals}</div><div>{x.redCards}</div><div>{x.conceded}</div>
                 </div>
               ))}
             </div>
