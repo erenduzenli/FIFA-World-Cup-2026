@@ -152,7 +152,7 @@ function calculateStandings(fixtures) {
   ]);
 }
 
-function calculateTeamGamePoints(fixtures) {
+function calculateTeamGamePoints(fixtures, manualRedCards = {}) {
   const points = {};
 
   groups.forEach(([, teams]) => {
@@ -197,6 +197,7 @@ function calculateTeamGamePoints(fixtures) {
   });
 
   Object.values(points).forEach((t) => {
+    t.redCards = Number(manualRedCards[t.team] || 0);
     t.totalPoints = t.matchPoints + t.goals - t.redCards;
   });
 
@@ -219,10 +220,11 @@ export default function Page() {
   const [scorer, setScorer] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [manualRedCards, setManualRedCards] = useState({});
 
   const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
-  const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures), [fixtures]);
+  const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures, manualRedCards), [fixtures, manualRedCards]);
 
   const tabs = [
     ["leaderboard", "🏆", "Lig Tablosu"],
@@ -254,6 +256,13 @@ export default function Page() {
 
   function resetFixture(id) {
     setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, homeGoals: "", awayGoals: "", homeRedCards: "", awayRedCards: "", status: "Yakında", locked: false } : m));
+  }
+  
+  function updateManualRedCards(team, value) {
+    setManualRedCards((prev) => ({
+      ...prev,
+      [team]: value.replace(/[^0-9]/g, ""),
+    }));
   }
 
   return (
@@ -332,7 +341,7 @@ export default function Page() {
             <p style={css.desc}>{isAdmin ? "Admin skorları girebilir, değiştirebilir veya sıfırlayabilir." : "Maç programı. Skor düzenleme sadece admin tarafından yapılır."}</p>
             <div style={{ display: "grid", gap: 12 }}>
               {fixtures.map((m) => (
-                <div key={m.id} style={{ ...css.card, padding: 16, display: "grid", gridTemplateColumns: isAdmin ? "0.8fr 0.7fr 1.4fr 70px 70px 70px 70px 1.4fr 1fr 250px" : "0.8fr 0.7fr 1.4fr 0.8fr 1.4fr 1fr", gap: 10, alignItems: "center" }}>
+                <div key={m.id} style={{ ...css.card, padding: 16, display: "grid", gridTemplateColumns: isAdmin ? "0.8fr 0.7fr 1.4fr 80px 80px 1.4fr 1fr 250px", gap: 10, alignItems: "center" }}>
                   <div>{m.stage}</div>
                   <div>{m.group !== "-" ? `Grup ${m.group}` : "-"}</div>
                   <div>{m.home}</div>
@@ -341,11 +350,7 @@ export default function Page() {
                     <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.homeGoals} onChange={(e) => updateFixture(m.id, "homeGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="Gol" />
 
                     <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.awayGoals} onChange={(e) => updateFixture(m.id, "awayGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="Gol" />
-
-                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.homeRedCards || ""} onChange={(e) => updateFixture(m.id, "homeRedCards", e.target.value.replace(/[^0-9]/g, ""))} placeholder="KK" />
-
-                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.awayRedCards || ""} onChange={(e) => updateFixture(m.id, "awayRedCards", e.target.value.replace(/[^0-9]/g, ""))} placeholder="KK" />
-                      </>
+                    </>
                     ) : (
                     <div style={{ color: "#facc15", fontWeight: 800, textAlign: "center" }}>{m.homeGoals === "" || m.awayGoals === "" ? "-" : `${m.homeGoals}-${m.awayGoals}`}</div>
                   )}
@@ -370,12 +375,11 @@ export default function Page() {
             <p style={css.desc}>Takım katkısı = maç puanı + attığı gol. Örn. 3-1 galibiyet = 3 + 3 = 6.</p>
             <div style={css.card}>
               <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
-                <div>Takım</div><div>Toplam Puan</div><div>Puan</div><div>Gol</div><div>Kırmızı Kart</div><div>Yediği Gol</div>
+                <div>Takım</div><div>Toplam Puan</div><div>Puan</div><div>Gol</div><div>Yediği Gol</div><div>Kırmızı Kart</div>
               </div>
               {teamPoints.map((x) => (
                 <div key={`${x.group}-${x.team}`} style={{ ...css.row, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
-                  <div>{x.team}</div><div style={{ color: "#facc15", fontWeight: 800 }}>{x.totalPoints}</div><div>{x.matchPoints}</div><div>{x.goals}</div><div>{x.redCards}</div><div>{x.conceded}</div>
-                </div>
+                  <div>{x.team}</div><div style={{ color: "#facc15", fontWeight: 800 }}>{x.totalPoints}</div><div>{x.matchPoints}</div><div>{x.goals}</div><div>{x.conceded}</div><input style={css.input} value={x.redCards} onChange={(e) => updateManualRedCards(x.team, e.target.value)} />                </div>
               ))}
             </div>
           </>
