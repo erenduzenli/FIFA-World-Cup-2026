@@ -182,7 +182,9 @@ function calculateTeamGamePoints(fixtures) {
     }
   });
 
-  return Object.values(points).sort((a, b) => a.group.localeCompare(b.group) || a.team.localeCompare(b.team));
+  return Object.values(points).sort(
+  (a, b) => b.gamePoints - a.gamePoints || a.team.localeCompare(b.team)
+  );
 }
 
 function Logo() {
