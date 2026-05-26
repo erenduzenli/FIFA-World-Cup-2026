@@ -230,7 +230,7 @@ export default function Page() {
         return sum + (row?.totalPoints || 0);
       }, 0),
     }))
-    .sort((a, b) => b.points - a.points || a.submittedAt - b.submittedAt);
+    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
   }, [participants, teamPoints]);
 
   const tabs = [
@@ -296,10 +296,10 @@ function deleteParticipant(id) {
   setParticipants((prev) => prev.filter((p) => p.id !== id));
 }
 
-function canSeeParticipant(participant) {
-  if (isAdmin || selectionsVisible) return true;
-  return participant.name === name.trim() && participant.pin === pin.trim();
+function canSeeParticipant() {
+  return isAdmin || selectionsVisible;
 }
+  
   return (
     <div style={css.page}>
       <header style={css.header}>
@@ -397,11 +397,11 @@ function canSeeParticipant(participant) {
             </div>
 
             {p.picks.map((pick, i) => (
-              <div key={i}>{visible ? pick : "Gizli"}</div>
+              <div key={i}>{visible ? pick : "****"}</div>
             ))}
 
-            <div>{visible ? p.champion : "Gizli"}</div>
-            <div>{visible ? p.scorer : "Gizli"}</div>
+              <div>{visible ? p.champion : "****"}</div>
+              <div>{visible ? p.scorer : "****"}</div>
 
             {isAdmin && (
               <button
