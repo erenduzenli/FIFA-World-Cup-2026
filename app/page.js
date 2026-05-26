@@ -345,7 +345,8 @@ export default function Page() {
                     <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.homeRedCards || ""} onChange={(e) => updateFixture(m.id, "homeRedCards", e.target.value.replace(/[^0-9]/g, ""))} placeholder="KK" />
 
                     <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.awayRedCards || ""} onChange={(e) => updateFixture(m.id, "awayRedCards", e.target.value.replace(/[^0-9]/g, ""))} placeholder="KK" />
-                  ) : (
+                      </>
+                    ) : (
                     <div style={{ color: "#facc15", fontWeight: 800, textAlign: "center" }}>{m.homeGoals === "" || m.awayGoals === "" ? "-" : `${m.homeGoals}-${m.awayGoals}`}</div>
                   )}
                   <div>{m.away}</div>
