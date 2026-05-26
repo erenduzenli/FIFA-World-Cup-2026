@@ -231,7 +231,6 @@ export default function Page() {
     ["standings", "📊", "Puan Durumu"],
     ["fixtures", "📅", "Fikstür"],
     ["teams", "⚽", "Takım Puanları"],
-    ["selections", "📋", "Seçimler"],
     ["rules", "📖", "Kurallar"],
     ["join", "➕", "Katıl"],
   ];
@@ -414,21 +413,22 @@ export default function Page() {
           </>
         )}
 
-        {tab === "selections" && (
-          <>
-            <h1 style={css.h1}>Seçimler</h1><p style={css.desc}>Seçimler gizli</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
-              <div style={css.box}>10 kişi kayıt oldu</div><div style={css.box}>7 kişi seçimini gönderdi</div><div style={css.box}>Seçimler gizli</div>
-            </div>
-          </>
-        )}
-
         {tab === "rules" && (
           <>
             <h1 style={css.h1}>Kurallar</h1><p style={css.desc}>Puanlama kuralları</p>
             <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14 }}>
               {rules.map((r, i) => <div key={i} style={css.box}>{r}</div>)}
             </div>
+          <div style={{ marginTop: 28 }}>
+  <h2 style={{ color: "#facc15", marginBottom: 12 }}>Seçimler</h2>
+  <p style={css.desc}>Seçimler admin görünür yapana kadar gizli kalır.</p>
+
+  <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
+    <div style={css.box}>10 kişi kayıt oldu</div>
+    <div style={css.box}>7 kişi seçimini gönderdi</div>
+    <div style={css.box}>Seçimler gizli</div>
+  </div>
+</div>
           </>
         )}
 
