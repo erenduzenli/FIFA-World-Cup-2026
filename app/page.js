@@ -379,8 +379,22 @@ export default function Page() {
               </div>
               {teamPoints.map((x) => (
                 <div key={`${x.group}-${x.team}`} style={{ ...css.row, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
-                  <div>{x.team}</div><div style={{ color: "#facc15", fontWeight: 800 }}>{x.totalPoints}</div><div>{x.matchPoints}</div><div>{x.goals}</div><div>{x.conceded}</div><input style={css.input} value={x.redCards} onChange={(e) => updateManualRedCards(x.team, e.target.value)} />                </div>
-              ))}
+            <div>{x.team}</div>
+<div style={{ color: "#facc15", fontWeight: 800 }}>{x.totalPoints}</div>
+<div>{x.matchPoints}</div>
+<div>{x.goals}</div>
+<div>{x.conceded}</div>
+
+{isAdmin ? (
+  <input
+    style={css.input}
+    value={x.redCards}
+    onChange={(e) => updateManualRedCards(x.team, e.target.value)}
+  />
+) : (
+  <div>{x.redCards}</div>
+)}
+            ))}
             </div>
           </>
         )}
