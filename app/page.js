@@ -341,7 +341,7 @@ export default function Page() {
             <p style={css.desc}>{isAdmin ? "Admin skorları girebilir, değiştirebilir veya sıfırlayabilir." : "Maç programı. Skor düzenleme sadece admin tarafından yapılır."}</p>
             <div style={{ display: "grid", gap: 12 }}>
               {fixtures.map((m) => (
-                <div key={m.id} style={{ ...css.card, padding: 16, display: "grid", gridTemplateColumns: isAdmin ? "0.8fr 0.7fr 1.4fr 80px 80px 1.4fr 1fr 250px", gap: 10, alignItems: "center" }}>
+                <div key={m.id} style={{ ...css.card, padding: 16, display: "grid", gridTemplateColumns: isAdmin ? "0.8fr 0.7fr 1.4fr 80px 80px 1.4fr 1fr 250px" : "0.8fr 0.7fr 1.4fr 0.8fr 1.4fr 1fr", gap: 10, alignItems: "center", alignItems: "center" }}>
                   <div>{m.stage}</div>
                   <div>{m.group !== "-" ? `Grup ${m.group}` : "-"}</div>
                   <div>{m.home}</div>
