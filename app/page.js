@@ -377,24 +377,39 @@ export default function Page() {
               <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
                 <div>Takım</div><div>Toplam Puan</div><div>Puan</div><div>Gol</div><div>Yediği Gol</div><div>Kırmızı Kart</div>
               </div>
-              {teamPoints.map((x) => (
-                <div key={`${x.group}-${x.team}`} style={{ ...css.row, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
-            <div>{x.team}</div>
-<div style={{ color: "#facc15", fontWeight: 800 }}>{x.totalPoints}</div>
-<div>{x.matchPoints}</div>
-<div>{x.goals}</div>
-<div>{x.conceded}</div>
+{teamPoints.map((x) => (
+  <div
+    key={x.team}
+    style={{
+      ...css.row,
+      gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr",
+    }}
+  >
+    <div>{x.team}</div>
 
-{isAdmin ? (
-  <input
-    style={css.input}
-    value={x.redCards}
-    onChange={(e) => updateManualRedCards(x.team, e.target.value)}
-  />
-) : (
-  <div>{x.redCards}</div>
-)}
-            ))}
+    <div style={{ color: "#facc15", fontWeight: 800 }}>
+      {x.totalPoints}
+    </div>
+
+    <div>{x.matchPoints}</div>
+
+    <div>{x.goals}</div>
+
+    <div>{x.conceded}</div>
+
+    {isAdmin ? (
+      <input
+        style={css.input}
+        value={x.redCards}
+        onChange={(e) =>
+          updateManualRedCards(x.team, e.target.value)
+        }
+      />
+    ) : (
+      <div>{x.redCards}</div>
+    )}
+  </div>
+))}
             </div>
           </>
         )}
