@@ -313,8 +313,16 @@ function canSeeParticipant(participant) {
               </div>
             </div>
             {isAdmin ? (
-              <button style={css.btn(true)} onClick={() => setIsAdmin(false)}>✅ Admin açık</button>
-            ) : (
+<button
+  style={css.btn(true)}
+  onClick={() => {
+    setIsAdmin(false);
+    setName("");
+    setPin("");
+  }}
+>
+  ✅ Admin açık
+</button>            ) : (
               <button style={css.btn(false)} onClick={adminLogin}>🔒 Admin Girişi</button>
             )}
           </div>
