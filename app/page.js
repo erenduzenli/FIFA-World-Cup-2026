@@ -441,39 +441,158 @@ function canSeeParticipant() {
           </>
         )}
 
-        {tab === "fixtures" && (
-          <>
-            <h1 style={css.h1}>Fikstür</h1>
-            <p style={css.desc}>{isAdmin ? "Admin skorları girebilir, değiştirebilir veya sıfırlayabilir." : "Maç programı. Skor düzenleme sadece admin tarafından yapılır."}</p>
-            <div style={{ display: "grid", gap: 12 }}>
-              {fixtures.map((m) => (
-                <div key={m.id} style={{ ...css.card, padding: 16, display: "grid", gridTemplateColumns: isAdmin ? "0.8fr 0.7fr 1.4fr 80px 80px 1.4fr 1fr 250px" : "0.8fr 0.7fr 1.4fr 0.8fr 1.4fr 1fr", gap: 10, alignItems: "center", alignItems: "center" }}>
-                  <div>{m.stage}</div>
-                  <div>{m.group !== "-" ? `Grup ${m.group}` : "-"}</div>
-                  <div>{m.home}</div>
-                  {isAdmin ? (
-                    <>
-                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.homeGoals} onChange={(e) => updateFixture(m.id, "homeGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="Gol" />
+{tab === "fixtures" && (
+  <>
+    <h1 style={css.h1}>Fikstür</h1>
+    <p style={css.desc}>
+      {isAdmin
+        ? "Admin skorları girebilir, değiştirebilir veya sıfırlayabilir."
+        : "Maç programı. Skor düzenleme sadece admin tarafından yapılır."}
+    </p>
 
-                    <input disabled={m.locked} style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }} value={m.awayGoals} onChange={(e) => updateFixture(m.id, "awayGoals", e.target.value.replace(/[^0-9]/g, ""))} placeholder="Gol" />
-                    </>
-                    ) : (
-                    <div style={{ color: "#facc15", fontWeight: 800, textAlign: "center" }}>{m.homeGoals === "" || m.awayGoals === "" ? "-" : `${m.homeGoals}-${m.awayGoals}`}</div>
-                  )}
-                  <div>{m.away}</div>
-                  <div style={{ color: m.status === "Tamamlandı" ? "#86efac" : "#94a3b8" }}>{m.status}</div>
-                  {isAdmin && (
-                    <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
-                      <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>Uygula</button>
-                      <button style={css.btn(false)} onClick={() => editFixture(m.id)}>Düzenle</button>
-                      <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>Sıfırla</button>
-                    </div>
-                  )}
-                </div>
-              ))}
+    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(420px,1fr))", gap: 16 }}>
+      {groups.map(([group]) => {
+        const groupFixtures = fixtures.filter((m) => m.stage === "Grup" && m.group === group);
+
+        return (
+          <div key={group} style={css.card}>
+            <div style={{ ...css.row, ...css.head, gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 90px 1fr" }}>
+              <div>Grup {group}</div>
+              {isAdmin ? (
+                <>
+                  <div>Gol</div>
+                  <div>Gol</div>
+                  <div>Rakip</div>
+                  <div>İşlem</div>
+                </>
+              ) : (
+                <>
+                  <div>Skor</div>
+                  <div>Rakip</div>
+                </>
+              )}
             </div>
-          </>
-        )}
+
+            {groupFixtures.map((m) => (
+              <div
+                key={m.id}
+                style={{
+                  ...css.row,
+                  gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 90px 1fr",
+                }}
+              >
+                <div>{m.home}</div>
+
+                {isAdmin ? (
+                  <>
+                    <input
+                      disabled={m.locked}
+                      style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+                      value={m.homeGoals}
+                      onChange={(e) =>
+                        updateFixture(m.id, "homeGoals", e.target.value.replace(/[^0-9]/g, ""))
+                      }
+                      placeholder="0"
+                    />
+
+                    <input
+                      disabled={m.locked}
+                      style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+                      value={m.awayGoals}
+                      onChange={(e) =>
+                        updateFixture(m.id, "awayGoals", e.target.value.replace(/[^0-9]/g, ""))
+                      }
+                      placeholder="0"
+                    />
+                  </>
+                ) : (
+                  <div style={{ color: "#facc15", fontWeight: 800, textAlign: "center" }}>
+                    {m.homeGoals === "" || m.awayGoals === "" ? "-" : `${m.homeGoals}-${m.awayGoals}`}
+                  </div>
+                )}
+
+                <div>{m.away}</div>
+
+                {isAdmin && (
+                  <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                    <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>Uygula</button>
+                    <button style={css.btn(false)} onClick={() => editFixture(m.id)}>Düzenle</button>
+                    <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>Sıfırla</button>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      })}
+    </div>
+
+    <div style={{ marginTop: 24 }}>
+      <h2 style={{ color: "#facc15" }}>Eleme Turları</h2>
+      <div style={{ display: "grid", gap: 12 }}>
+        {fixtures
+          .filter((m) => m.stage !== "Grup")
+          .map((m) => (
+            <div
+              key={m.id}
+              style={{
+                ...css.card,
+                padding: 16,
+                display: "grid",
+                gridTemplateColumns: isAdmin
+                  ? "1fr 1.4fr 70px 70px 1.4fr 1fr 220px"
+                  : "1fr 1.4fr 90px 1.4fr 1fr",
+                gap: 10,
+                alignItems: "center",
+              }}
+            >
+              <div>{m.stage}</div>
+              <div>{m.home}</div>
+
+              {isAdmin ? (
+                <>
+                  <input
+                    disabled={m.locked}
+                    style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+                    value={m.homeGoals}
+                    onChange={(e) =>
+                      updateFixture(m.id, "homeGoals", e.target.value.replace(/[^0-9]/g, ""))
+                    }
+                    placeholder="0"
+                  />
+
+                  <input
+                    disabled={m.locked}
+                    style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+                    value={m.awayGoals}
+                    onChange={(e) =>
+                      updateFixture(m.id, "awayGoals", e.target.value.replace(/[^0-9]/g, ""))
+                    }
+                    placeholder="0"
+                  />
+                </>
+              ) : (
+                <div style={{ color: "#facc15", fontWeight: 800, textAlign: "center" }}>
+                  {m.homeGoals === "" || m.awayGoals === "" ? "-" : `${m.homeGoals}-${m.awayGoals}`}
+                </div>
+              )}
+
+              <div>{m.away}</div>
+              <div>{m.status}</div>
+
+              {isAdmin && (
+                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+                  <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>Uygula</button>
+                  <button style={css.btn(false)} onClick={() => editFixture(m.id)}>Düzenle</button>
+                  <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>Sıfırla</button>
+                </div>
+              )}
+            </div>
+          ))}
+      </div>
+    </div>
+  </>
+)}
 
         {tab === "teams" && (
           <>
