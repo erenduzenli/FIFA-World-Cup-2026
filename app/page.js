@@ -642,9 +642,56 @@ function canSeeParticipant() {
         {tab === "rules" && (
           <>
             <h1 style={css.h1}>Kurallar</h1><p style={css.desc}>Puanlama kuralları</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14 }}>
-              {rules.map((r, i) => <div key={i} style={css.box}>{r}</div>)}
-            </div>
+<div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 16 }}>
+  <div style={css.box}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>⚽ Maç Puanları</h2>
+    <div>🟢 Galibiyet: +3</div>
+    <div>🟡 Beraberlik: +1</div>
+    <div>🔴 Mağlubiyet: 0</div>
+    <div>🎯 Her gol: +1</div>
+    <div>🟥 Kırmızı kart: -1</div>
+  </div>
+
+  <div style={css.box}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>🏆 Turnuva Bonusları</h2>
+    <div>👑 Grup lideri: +2</div>
+    <div>🥈 Grup ikincisi: +1</div>
+    <div>🏆 Şampiyon takım: +8</div>
+    <div>🥈 İkinci takım: +6</div>
+    <div>🥉 Üçüncü takım: +4</div>
+  </div>
+
+  <div style={css.box}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>🔮 Tahmin Bonusları</h2>
+    <div>🏆 Doğru şampiyon tahmini: +10</div>
+    <div>⚽ Doğru gol kralı tahmini: +10</div>
+  </div>
+
+  <div style={css.box}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>📌 Ekstra Kurallar</h2>
+    <div>📈 En çok gol atan takım seçiliyse: +3</div>
+    <div>📉 En çok gol yiyen takım seçiliyse: -3</div>
+    <div>🚫 Penaltı golleri sayılmaz</div>
+    <div>⚔️ Penaltı galibiyeti: +3</div>
+  </div>
+
+  <div style={css.box}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>🧮 Eşitlik Durumu</h2>
+    <div>1. Toplam gol</div>
+    <div>2. Gol kralı tahmini</div>
+    <div>3. Şampiyon tahmini</div>
+    <div>4. İkinci takım</div>
+    <div>5. Üçüncü takım</div>
+    <div>6. Erken katılım tarihi</div>
+  </div>
+
+  <div style={{ ...css.box, borderColor: "#facc15" }}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>💰 Ödül Dağılımı</h2>
+    <div style={{ fontSize: 18, fontWeight: 800 }}>🥇 1. sıra: toplam ödülün %60’ı</div>
+    <div style={{ fontSize: 18, fontWeight: 800 }}>🥈 2. sıra: toplam ödülün %30’u</div>
+    <div style={{ fontSize: 18, fontWeight: 800 }}>🥉 3. sıra: toplam ödülün %10’u</div>
+  </div>
+</div>
           <div style={{ marginTop: 28 }}>
   <h2 style={{ color: "#facc15", marginBottom: 12 }}>Seçimler</h2>
   <p style={css.desc}>Seçimler admin görünür yapana kadar gizli kalır.</p>
