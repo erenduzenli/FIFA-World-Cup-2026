@@ -272,6 +272,14 @@ export default function Page() {
   const [submitted, setSubmitted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
   const [adminPin, setAdminPin] = useState("");
+  useEffect(() => {
+  const savedPin = localStorage.getItem("adminPin");
+
+  if (savedPin) {
+    setAdminPin(savedPin);
+    setIsAdmin(true);
+  }
+}, []);
   const [manualRedCards, setManualRedCards] = useState({});
   const [participants, setParticipants] = useState([]);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
@@ -310,12 +318,13 @@ export default function Page() {
     body: JSON.stringify({ pin }),
   });
 
-  if (res.ok) {
-    setAdminPin(pin);
-    setIsAdmin(true);
-  } else {
-    alert("Hatalı admin PIN");
-  }
+if (res.ok) {
+  setAdminPin(pin);
+  setIsAdmin(true);
+  localStorage.setItem("adminPin", pin);
+} else {
+  alert("Hatalı admin PIN");
+}
 }
 
   function updateFixture(id, field, value) {
@@ -492,6 +501,7 @@ function canSeeParticipant() {
 onClick={() => {
   setIsAdmin(false);
   setAdminPin("");
+  localStorage.removeItem("adminPin");
   setName("");
 }}
 >
