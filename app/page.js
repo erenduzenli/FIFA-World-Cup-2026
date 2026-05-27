@@ -676,7 +676,7 @@ onClick={() => {
         ...css.row,
         ...css.head,
         gridTemplateColumns: isAdmin
-          ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr 90px"
+          ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
           : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
         minWidth: 1500,
       }}
@@ -692,7 +692,7 @@ onClick={() => {
       <div>Şampiyon</div>
       <div>Gol Kralı</div>
 
-      {isAdmin && <div>Sil</div>}
+      
     </div>
 
     {leaderboardRows.length === 0 ? (
@@ -709,7 +709,7 @@ onClick={() => {
             style={{
               ...css.row,
               gridTemplateColumns: isAdmin
-                ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr 90px"
+                ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
                 : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
               minWidth: 1500,
             }}
@@ -728,14 +728,6 @@ onClick={() => {
               <div>{visible ? p.champion : "****"}</div>
               <div>{visible ? p.scorer : "****"}</div>
 
-            {isAdmin && (
-              <button
-                style={css.dangerBtn}
-                onClick={() => deleteParticipant(p.id)}
-              >
-                Sil
-              </button>
-            )}
           </div>
         );
       })
