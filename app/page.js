@@ -286,6 +286,26 @@ useEffect(() => {
 
   loadSettings();
 }, []);
+  useEffect(() => {
+  async function loadTeamRedCards() {
+    const { data, error } = await supabase
+      .from("team_red_cards")
+      .select("*");
+
+    if (error) {
+      console.error("Team red cards could not be loaded:", error);
+      return;
+    }
+
+    const formatted = Object.fromEntries(
+      data.map((x) => [x.team, String(x.red_cards)])
+    );
+
+    setManualRedCards(formatted);
+  }
+
+  loadTeamRedCards();
+}, []);
   const [selection, setSelection] = useState({});
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
@@ -453,12 +473,29 @@ async function resetFixture(id) {
   );
 }
   
-  function updateManualRedCards(team, value) {
-    setManualRedCards((prev) => ({
-      ...prev,
-      [team]: value.replace(/[^0-9]/g, ""),
-    }));
+async function updateManualRedCards(team, value) {
+  const cleanValue = value.replace(/[^0-9]/g, "");
+
+  setManualRedCards((prev) => ({
+    ...prev,
+    [team]: cleanValue,
+  }));
+
+  const res = await fetch("/api/admin/team-red-cards", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pin: adminPin,
+      team,
+      redCards: cleanValue === "" ? 0 : Number(cleanValue),
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Kırmızı kart kaydedilemedi: " + text);
   }
+}
 async function submitPicks() {
   if (!name.trim() || !pin.trim() || !champion.trim() || !scorer.trim()) return;
   if (completed !== pots.length) return;
