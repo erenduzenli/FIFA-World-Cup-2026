@@ -652,14 +652,16 @@ function canSeeParticipant() {
     <div>🟥 Kırmızı kart: -1</div>
   </div>
 
-  <div style={css.box}>
-    <h2 style={{ color: "#facc15", marginTop: 0 }}>🏆 Turnuva Bonusları</h2>
-    <div>👑 Grup lideri: +2</div>
-    <div>🥈 Grup ikincisi: +1</div>
-    <div>🏆 Şampiyon takım: +8</div>
-    <div>🥈 İkinci takım: +6</div>
-    <div>🥉 Üçüncü takım: +4</div>
-  </div>
+<div style={css.box}>
+  <h2 style={{ color: "#facc15", marginTop: 0 }}>🏆 Turnuva Bonusları</h2>
+  <div>👑 Seçilen takımlardan biri grup lideri olursa: +2</div>
+  <div>🥈 Seçilen takımlardan biri grup ikincisi olursa: +1</div>
+  <div>🏆 Seçilen takımlardan biri şampiyon olursa: +8</div>
+  <div>🥈 Seçilen takımlardan biri ikinci olursa: +6</div>
+  <div>🥉 Seçilen takımlardan biri üçüncü olursa: +4</div>
+  <div>📈 Seçilen takımlardan biri turnuvanın en çok gol atan takımı olursa: +3</div>
+  <div>📉 Seçilen takımlardan biri turnuvanın en çok gol yiyen takımı olursa: -3</div>
+</div>
 
   <div style={css.box}>
     <h2 style={{ color: "#facc15", marginTop: 0 }}>🔮 Tahmin Bonusları</h2>
@@ -669,27 +671,28 @@ function canSeeParticipant() {
 
   <div style={css.box}>
     <h2 style={{ color: "#facc15", marginTop: 0 }}>📌 Ekstra Kurallar</h2>
-    <div>📈 En çok gol atan takım seçiliyse: +3</div>
-    <div>📉 En çok gol yiyen takım seçiliyse: -3</div>
     <div>🚫 Penaltı golleri sayılmaz</div>
     <div>⚔️ Penaltı galibiyeti: +3</div>
   </div>
 
-  <div style={css.box}>
-    <h2 style={{ color: "#facc15", marginTop: 0 }}>🧮 Eşitlik Durumu</h2>
-    <div>1. Toplam gol</div>
-    <div>2. Gol kralı tahmini</div>
-    <div>3. Şampiyon tahmini</div>
-    <div>4. İkinci takım</div>
-    <div>5. Üçüncü takım</div>
-    <div>6. Erken katılım tarihi</div>
+<div style={css.box}>
+  <h2 style={{ color: "#facc15", marginTop: 0 }}>🧮 Eşitlik Durumu</h2>
+  <div style={{ marginBottom: 8 }}>
+    Katılımcıların toplam puanı eşitse sıralama aşağıdaki önceliğe göre belirlenir:
   </div>
+  <div>1. Seçilen takımların attığı toplam gol</div>
+  <div>2. Gol kralı tahmini</div>
+  <div>3. Şampiyon tahmini</div>
+  <div>4. İkinci olan takım</div>
+  <div>5. Üçüncü olan takım</div>
+  <div>6. Daha erken katılım zamanı</div>
+</div>
 
   <div style={{ ...css.box, borderColor: "#facc15" }}>
     <h2 style={{ color: "#facc15", marginTop: 0 }}>💰 Ödül Dağılımı</h2>
-    <div style={{ fontSize: 18, fontWeight: 800 }}>🥇 1. sıra: toplam ödülün %60’ı</div>
-    <div style={{ fontSize: 18, fontWeight: 800 }}>🥈 2. sıra: toplam ödülün %30’u</div>
-    <div style={{ fontSize: 18, fontWeight: 800 }}>🥉 3. sıra: toplam ödülün %10’u</div>
+    <div style={{ fontSize: 16, fontWeight: 800 }}>🥇 1. sıra: toplam ödülün %60’ı</div>
+    <div style={{ fontSize: 16, fontWeight: 800 }}>🥈 2. sıra: toplam ödülün %30’u</div>
+    <div style={{ fontSize: 16, fontWeight: 800 }}>🥉 3. sıra: toplam ödülün %10’u</div>
   </div>
 </div>
           <div style={{ marginTop: 28 }}>
