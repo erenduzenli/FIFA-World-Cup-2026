@@ -828,12 +828,17 @@ onClick={() => {
               {p.points}
             </div>
 
-            {p.picks.map((pick, i) => (
-              <div key={i}>{visible ? pick : "****"}</div>
-            ))}
+{p.picks.map((pick, i) => (
+  <div key={i} style={visible ? teamStyle(pick) : {}}>
+    {visible ? pick : "****"}
+  </div>
+))}
 
-              <div>{visible ? p.champion : "****"}</div>
-              <div>{visible ? p.scorer : "****"}</div>
+<div style={visible ? teamStyle(p.champion) : {}}>
+  {visible ? p.champion : "****"}
+</div>
+
+<div>{visible ? p.scorer : "****"}</div>
 
           </div>
         );
@@ -857,11 +862,19 @@ onClick={() => {
                   <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr repeat(8,0.55fr)" }}>
                     <div>Grup {group}</div><div>O</div><div>G</div><div>B</div><div>M</div><div>A</div><div>Y</div><div>AV</div><div>P</div>
                   </div>
-                  {rows.map((r) => (
-                    <div key={r.team} style={{ ...css.row, gridTemplateColumns: "2fr repeat(8,0.55fr)" }}>
-                      <div style={{ fontWeight: 700 }}>{r.team}</div><div>{r.played}</div><div>{r.won}</div><div>{r.drawn}</div><div>{r.lost}</div><div>{r.gf}</div><div>{r.ga}</div><div>{r.gd}</div><div style={{ color: "#facc15", fontWeight: 800 }}>{r.pts}</div>
-                    </div>
-                  ))}
+{rows.map((r) => (
+  <div key={r.team} style={{ ...css.row, gridTemplateColumns: "2fr repeat(8,0.55fr)" }}>
+    <div style={{ fontWeight: 700, ...teamStyle(r.team) }}>{r.team}</div>
+    <div>{r.played}</div>
+    <div>{r.won}</div>
+    <div>{r.drawn}</div>
+    <div>{r.lost}</div>
+    <div>{r.gf}</div>
+    <div>{r.ga}</div>
+    <div>{r.gd}</div>
+    <div style={{ color: "#facc15", fontWeight: 800 }}>{r.pts}</div>
+  </div>
+))}
                 </div>
               ))}
             </div>
