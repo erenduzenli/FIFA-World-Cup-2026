@@ -342,9 +342,9 @@ async function markPlayed(id) {
   });
 
 if (!res.ok) {
-  const err = await res.json();
-  console.error("Skor kaydedilemedi:", err);
-  alert("Skor kaydedilemedi: " + (err.error || "Bilinmeyen hata"));
+  const text = await res.text();
+  console.error("Skor kaydedilemedi:", text);
+  alert("Skor kaydedilemedi: " + text);
   return;
 }
 
