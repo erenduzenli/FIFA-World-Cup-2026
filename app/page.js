@@ -341,10 +341,12 @@ async function markPlayed(id) {
     body: JSON.stringify({ pin: adminPin, id, updates }),
   });
 
-  if (!res.ok) {
-    alert("Skor kaydedilemedi.");
-    return;
-  }
+if (!res.ok) {
+  const err = await res.json();
+  console.error("Skor kaydedilemedi:", err);
+  alert("Skor kaydedilemedi: " + (err.error || "Bilinmeyen hata"));
+  return;
+}
 
   setFixtures((prev) =>
     prev.map((m) =>
