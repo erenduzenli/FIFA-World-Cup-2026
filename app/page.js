@@ -243,7 +243,7 @@ export default function Page() {
   async function loadParticipants() {
     const { data, error } = await supabase
       .from("participants")
-      .select("*")
+      .select("id, name, picks, champion, scorer, submitted_at")
       .order("submitted_at", { ascending: true });
 
     if (error) {
@@ -286,7 +286,11 @@ export default function Page() {
 }, []);
   const [selection, setSelection] = useState({});
   const [name, setName] = useState("");
+  const [pin, setPin] = useState("");
   const [champion, setChampion] = useState("");
+  const [viewName, setViewName] = useState("");
+  const [viewPin, setViewPin] = useState("");
+  const [ownParticipantId, setOwnParticipantId] = useState(null);
   const [scorer, setScorer] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
@@ -454,18 +458,19 @@ async function resetFixture(id) {
     }));
   }
 async function submitPicks() {
-  if (!name.trim() || !champion.trim() || !scorer.trim()) return;
+  if (!name.trim() || !pin.trim() || !champion.trim() || !scorer.trim()) return;
   if (completed !== pots.length) return;
   if (submitted) return;
 
   const picks = pots.map((p) => selection[p.id]);
 
-  const newParticipant = {
-    name: name.trim(),
-    picks,
-    champion: champion.trim(),
-    scorer: scorer.trim(),
-  };
+const newParticipant = {
+  name: name.trim(),
+  pin: pin.trim(),
+  picks,
+  champion: champion.trim(),
+  scorer: scorer.trim(),
+};
 
   const { data, error } = await supabase
     .from("participants")
@@ -519,9 +524,30 @@ async function toggleSelectionsVisible() {
 
   setSelectionsVisible(newValue);
 }
+
+async function revealOwnPicks() {
+  if (!viewName.trim() || !viewPin.trim()) return;
+
+  const res = await fetch("/api/participant/check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: viewName,
+      pin: viewPin,
+    }),
+  });
+
+  if (!res.ok) {
+    alert("İsim veya PIN hatalı.");
+    return;
+  }
+
+  const data = await res.json();
+  setOwnParticipantId(data.id);
+}
   
-function canSeeParticipant() {
-  return isAdmin || selectionsVisible;
+function canSeeParticipant(p) {
+  return isAdmin || selectionsVisible || p.id === ownParticipantId;
 }
   
   return (
@@ -569,6 +595,33 @@ onClick={() => {
           <>
             <h1 style={css.h1}>Lig Tablosu</h1>
             <p style={css.desc}>Anlık puan sıralaması</p>
+          {!selectionsVisible && !isAdmin && (
+  <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
+    <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
+      Kendi seçimimi göster
+    </div>
+
+    <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr auto", gap: 10 }}>
+      <input
+        style={css.input}
+        placeholder="İsim"
+        value={viewName}
+        onChange={(e) => setViewName(e.target.value)}
+      />
+
+      <input
+        style={css.input}
+        placeholder="PIN"
+        value={viewPin}
+        onChange={(e) => setViewPin(e.target.value)}
+      />
+
+      <button style={css.btn(true)} onClick={revealOwnPicks}>
+        Göster
+      </button>
+    </div>
+  </div>
+)}
           <div style={css.card}>
   <div style={{ overflowX: "auto" }}>
     <div
@@ -963,6 +1016,13 @@ onClick={() => {
     onChange={(e) => setName(e.target.value)}
     disabled={submitted}
   />
+  <input
+  style={{ ...css.input, marginTop: 12 }}
+  placeholder="PIN"
+  value={pin}
+  onChange={(e) => setPin(e.target.value)}
+  disabled={submitted}
+/>
 </div>
               <div style={{ color: "#94a3b8", marginBottom: 16 }}>{completed}/{pots.length} tamamlandı</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14 }}>
