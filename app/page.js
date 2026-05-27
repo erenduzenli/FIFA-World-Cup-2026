@@ -3,8 +3,6 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
-const ADMIN_PIN = "eren554852";
-
 const pots = [
   { id: 1, teams: ["Spain", "France", "Argentina", "England"] },
   { id: 2, teams: ["Brazil", "Portugal", "Netherlands", "Morocco"] },
@@ -273,6 +271,7 @@ export default function Page() {
   const [scorer, setScorer] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [isAdmin, setIsAdmin] = useState(false);
+  const [adminPin, setAdminPin] = useState("");
   const [manualRedCards, setManualRedCards] = useState({});
   const [participants, setParticipants] = useState([]);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
@@ -301,19 +300,58 @@ export default function Page() {
     ["join", "➕", "Katıl"],
   ];
 
-  function adminLogin() {
-    const pin = window.prompt("Admin PIN gir:");
-    if (pin === ADMIN_PIN) setIsAdmin(true);
-    else if (pin !== null) alert("Hatalı admin PIN");
+  async function adminLogin() {
+  const pin = window.prompt("Admin PIN gir:");
+  if (pin === null) return;
+
+  const res = await fetch("/api/admin/check", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin }),
+  });
+
+  if (res.ok) {
+    setAdminPin(pin);
+    setIsAdmin(true);
+  } else {
+    alert("Hatalı admin PIN");
   }
+}
 
   function updateFixture(id, field, value) {
     setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, [field]: value } : m));
   }
 
-  function markPlayed(id) {
-    setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, status: "Tamamlandı", locked: true } : m));
+async function markPlayed(id) {
+  const match = fixtures.find((m) => m.id === id);
+  if (!match) return;
+
+  const updates = {
+    home_goals: match.homeGoals === "" ? null : Number(match.homeGoals),
+    away_goals: match.awayGoals === "" ? null : Number(match.awayGoals),
+    home_red_cards: Number(match.homeRedCards || 0),
+    away_red_cards: Number(match.awayRedCards || 0),
+    status: "Tamamlandı",
+    locked: true,
+  };
+
+  const res = await fetch("/api/admin/fixtures", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin: adminPin, id, updates }),
+  });
+
+  if (!res.ok) {
+    alert("Skor kaydedilemedi.");
+    return;
   }
+
+  setFixtures((prev) =>
+    prev.map((m) =>
+      m.id === id ? { ...m, status: "Tamamlandı", locked: true } : m
+    )
+  );
+}
 
   function editFixture(id) {
     setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, status: "Düzenleniyor", locked: false } : m));
@@ -395,6 +433,7 @@ function canSeeParticipant() {
   style={css.btn(true)}
 onClick={() => {
   setIsAdmin(false);
+  setAdminPin("");
   setName("");
 }}
 >
