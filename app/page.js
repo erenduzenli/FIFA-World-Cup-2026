@@ -265,6 +265,25 @@ export default function Page() {
 
   loadParticipants();
 }, []);
+
+  useEffect(() => {
+  async function loadSettings() {
+    const { data, error } = await supabase
+      .from("settings")
+      .select("*")
+      .eq("key", "selections_visible")
+      .single();
+
+    if (error) {
+      console.error("Settings could not be loaded:", error);
+      return;
+    }
+
+    setSelectionsVisible(data.value === true);
+  }
+
+  loadSettings();
+}, []);
   const [selection, setSelection] = useState({});
   const [name, setName] = useState("");
   const [champion, setChampion] = useState("");
@@ -479,6 +498,28 @@ function deleteParticipant(id) {
   setParticipants((prev) => prev.filter((p) => p.id !== id));
 }
 
+async function toggleSelectionsVisible() {
+  const newValue = !selectionsVisible;
+
+  const res = await fetch("/api/admin/settings", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pin: adminPin,
+      key: "selections_visible",
+      value: newValue,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Seçim görünürlüğü güncellenemedi: " + text);
+    return;
+  }
+
+  setSelectionsVisible(newValue);
+}
+  
 function canSeeParticipant() {
   return isAdmin || selectionsVisible;
 }
@@ -898,7 +939,7 @@ onClick={() => {
   {isAdmin && (
   <button
     style={{ ...css.btn(true), marginTop: 14 }}
-    onClick={() => setSelectionsVisible((v) => !v)}
+    onClick={toggleSelectionsVisible}
   >
     {selectionsVisible
       ? "Seçimleri Gizle"
