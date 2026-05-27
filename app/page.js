@@ -355,13 +355,69 @@ if (!res.ok) {
   );
 }
 
-  function editFixture(id) {
-    setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, status: "Düzenleniyor", locked: false } : m));
+async function editFixture(id) {
+  const updates = {
+    status: "Düzenleniyor",
+    locked: false,
+  };
+
+  const res = await fetch("/api/admin/fixtures", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin: adminPin, id, updates }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Maç düzenlemeye açılamadı: " + text);
+    return;
   }
 
-  function resetFixture(id) {
-    setFixtures((prev) => prev.map((m) => m.id === id ? { ...m, homeGoals: "", awayGoals: "", homeRedCards: "", awayRedCards: "", status: "Yakında", locked: false } : m));
+  setFixtures((prev) =>
+    prev.map((m) =>
+      m.id === id ? { ...m, status: "Düzenleniyor", locked: false } : m
+    )
+  );
+}
+
+async function resetFixture(id) {
+  const updates = {
+    home_goals: null,
+    away_goals: null,
+    home_red_cards: 0,
+    away_red_cards: 0,
+    status: "Yakında",
+    locked: false,
+  };
+
+  const res = await fetch("/api/admin/fixtures", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin: adminPin, id, updates }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Maç sıfırlanamadı: " + text);
+    return;
   }
+
+  setFixtures((prev) =>
+    prev.map((m) =>
+      m.id === id
+        ? {
+            ...m,
+            homeGoals: "",
+            awayGoals: "",
+            homeRedCards: "",
+            awayRedCards: "",
+            status: "Yakında",
+            locked: false,
+          }
+        : m
+    )
+  );
+}
   
   function updateManualRedCards(team, value) {
     setManualRedCards((prev) => ({
