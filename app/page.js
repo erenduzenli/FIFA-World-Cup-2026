@@ -1029,23 +1029,26 @@ onClick={() => {
     <div style={css.box}>
   {selectionsVisible ? "Seçimler görünür" : "Seçimler gizli"}
 </div>
-  {isAdmin && (
-  <button
-    style={{ ...css.btn(true), marginTop: 14 }}
-    onClick={toggleSelectionsVisible}
-  >
-    {selectionsVisible
-      ? "Seçimleri Gizle"
-      : "Seçimleri Göster"}
-  </button>
-<button
-  style={{ ...css.btn(false), marginTop: 14, marginLeft: 10 }}
-  onClick={toggleOwnPickPanelVisible}
->
-  {ownPickPanelVisible
-    ? "Kendi Seçim Panelini Gizle"
-    : "Kendi Seçim Panelini Göster"}
-</button>
+{isAdmin && (
+  <>
+    <button
+      style={{ ...css.btn(true), marginTop: 14 }}
+      onClick={toggleSelectionsVisible}
+    >
+      {selectionsVisible
+        ? "Seçimleri Gizle"
+        : "Seçimleri Göster"}
+    </button>
+
+    <button
+      style={{ ...css.btn(false), marginTop: 14, marginLeft: 10 }}
+      onClick={toggleOwnPickPanelVisible}
+    >
+      {ownPickPanelVisible
+        ? "Kendi Seçim Panelini Gizle"
+        : "Kendi Seçim Panelini Göster"}
+    </button>
+  </>
 )}
   </div>
 </div>
