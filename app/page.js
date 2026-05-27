@@ -424,7 +424,10 @@ function canSeeParticipant() {
           <>
             <h1 style={css.h1}>Puan Durumu</h1>
             <p style={css.desc}>Girilen maç sonuçlarına göre otomatik hesaplanır</p>
-            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16 }}>
+            <div style={{ display: "grid", gridTemplateColumns:
+  window.innerWidth < 768
+    ? "repeat(auto-fit,minmax(280px,1fr))"
+    : "repeat(auto-fit,minmax(420px,1fr))", gap: 16 }}>
               {standings.map(([group, rows]) => (
                 <div key={group} style={css.card}>
                   <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr repeat(8,0.55fr)" }}>
@@ -450,7 +453,10 @@ function canSeeParticipant() {
         : "Maç programı. Skor düzenleme sadece admin tarafından yapılır."}
     </p>
 
-    <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))", gap: 16 }}>
+    <div style={{ display: "grid", gridTemplateColumns:
+  window.innerWidth < 768
+    ? "repeat(auto-fit,minmax(280px,1fr))"
+    : "repeat(auto-fit,minmax(420px,1fr))", gap: 16 }}>
       {groups.map(([group]) => {
         const groupFixtures = fixtures.filter((m) => m.stage === "Grup" && m.group === group);
 
