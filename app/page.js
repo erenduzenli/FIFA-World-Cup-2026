@@ -619,6 +619,22 @@ onClick={() => {
           <>
             <h1 style={css.h1}>Lig Tablosu</h1>
             <p style={css.desc}>Anlık puan sıralaması</p>
+         {isAdmin && (
+  <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
+    <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
+      Kullanıcı paneli kontrolü
+    </div>
+
+    <button
+      style={css.btn(ownPickPanelVisible)}
+      onClick={toggleOwnPickPanelVisible}
+    >
+      {ownPickPanelVisible
+        ? "Kendi Seçim Panelini Gizle"
+        : "Kendi Seçim Panelini Göster"}
+    </button>
+  </div>
+)}
           {ownPickPanelVisible && !selectionsVisible && !isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
     <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
