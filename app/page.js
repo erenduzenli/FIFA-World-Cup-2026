@@ -33,6 +33,14 @@ const groups = [
   ["L", ["İngiltere", "Hırvatistan", "Gana", "Panama"]],
 ];
 const allTeams = groups.flatMap(([, teams]) => teams);
+const knockoutStages = [
+  "Son 32",
+  "Son 16",
+  "Çeyrek Final",
+  "Yarı Final",
+  "Üçüncülük Maçı",
+  "Final",
+];
 
 function makeGroupFixtures() {
   return groups.flatMap(([group, teams]) => {
@@ -898,43 +906,72 @@ onClick={() => {
       })}
     </div>
 
-    <div style={{ marginTop: 24 }}>
-      <h2 style={{ color: "#facc15" }}>Eleme Turları</h2>
-      <div style={{ display: "grid", gap: 12 }}>
-        {fixtures
-          .filter((m) => m.stage !== "Grup")
-          .map((m) => (
+<div style={{ marginTop: 24 }}>
+  <h2 style={{ color: "#facc15" }}>Eleme Turları</h2>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns:
+        window.innerWidth < 768
+          ? "repeat(auto-fit,minmax(280px,1fr))"
+          : "repeat(auto-fit,minmax(520px,1fr))",
+      gap: 16,
+    }}
+  >
+    {knockoutStages.map((stage) => {
+      const stageFixtures = fixtures.filter((m) => m.stage === stage);
+
+      if (stageFixtures.length === 0) return null;
+
+      return (
+        <div key={stage} style={css.card}>
+          <div
+            style={{
+              ...css.row,
+              ...css.head,
+              gridTemplateColumns: isAdmin
+                ? "70px 1.4fr 70px 70px 1.4fr 220px"
+                : "70px 1.4fr 70px 1.4fr",
+            }}
+          >
+            <div>{stage}</div>
+            <div>Takım</div>
+            <div>Gol</div>
+            {isAdmin && <div>Gol</div>}
+            <div>Rakip</div>
+            {isAdmin && <div>İşlem</div>}
+          </div>
+
+          {stageFixtures.map((m, index) => (
             <div
               key={m.id}
               style={{
-                ...css.card,
-                padding: 16,
-                display: "grid",
+                ...css.row,
                 gridTemplateColumns: isAdmin
-                  ? "1fr 1.4fr 70px 70px 1.4fr 1fr 220px"
-                  : "1fr 1.4fr 90px 1.4fr 1fr",
-                gap: 10,
-                alignItems: "center",
+                  ? "70px 1.4fr 70px 70px 1.4fr 220px"
+                  : "70px 1.4fr 70px 1.4fr",
               }}
             >
-              <div>{m.stage}</div>
+              <div>{index + 1}</div>
+
               {isAdmin ? (
-  <select
-    disabled={m.locked}
-    style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
-    value={m.home}
-    onChange={(e) => updateFixture(m.id, "home", e.target.value)}
-  >
-    <option value="TBD">TBD</option>
-    {allTeams.map((team) => (
-      <option key={team} value={team}>
-        {team}
-      </option>
-    ))}
-  </select>
-) : (
-  <div>{m.home}</div>
-)}
+                <select
+                  disabled={m.locked}
+                  style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+                  value={m.home}
+                  onChange={(e) => updateFixture(m.id, "home", e.target.value)}
+                >
+                  <option value="TBD">TBD</option>
+                  {allTeams.map((team) => (
+                    <option key={team} value={team}>
+                      {team}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div>{m.home}</div>
+              )}
 
               {isAdmin ? (
                 <>
@@ -943,7 +980,11 @@ onClick={() => {
                     style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
                     value={m.homeGoals}
                     onChange={(e) =>
-                      updateFixture(m.id, "homeGoals", e.target.value.replace(/[^0-9]/g, ""))
+                      updateFixture(
+                        m.id,
+                        "homeGoals",
+                        e.target.value.replace(/[^0-9]/g, "")
+                      )
                     }
                     placeholder="0"
                   />
@@ -953,47 +994,68 @@ onClick={() => {
                     style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
                     value={m.awayGoals}
                     onChange={(e) =>
-                      updateFixture(m.id, "awayGoals", e.target.value.replace(/[^0-9]/g, ""))
+                      updateFixture(
+                        m.id,
+                        "awayGoals",
+                        e.target.value.replace(/[^0-9]/g, "")
+                      )
                     }
                     placeholder="0"
                   />
                 </>
               ) : (
-                <div style={{ color: "#facc15", fontWeight: 800, textAlign: "center", justifySelf: "center" }}>
-                  {m.homeGoals === "" || m.awayGoals === "" ? "-" : `${m.homeGoals}-${m.awayGoals}`}
+                <div
+                  style={{
+                    color: "#facc15",
+                    fontWeight: 800,
+                    textAlign: "center",
+                    justifySelf: "center",
+                  }}
+                >
+                  {m.homeGoals === "" || m.awayGoals === ""
+                    ? "-"
+                    : `${m.homeGoals}-${m.awayGoals}`}
                 </div>
               )}
 
               {isAdmin ? (
-  <select
-    disabled={m.locked}
-    style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
-    value={m.away}
-    onChange={(e) => updateFixture(m.id, "away", e.target.value)}
-  >
-    <option value="TBD">TBD</option>
-    {allTeams.map((team) => (
-      <option key={team} value={team}>
-        {team}
-      </option>
-    ))}
-  </select>
-) : (
-  <div style={{ textAlign: "right" }}>{m.away}</div>
-)}
-              <div>{m.status}</div>
+                <select
+                  disabled={m.locked}
+                  style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+                  value={m.away}
+                  onChange={(e) => updateFixture(m.id, "away", e.target.value)}
+                >
+                  <option value="TBD">TBD</option>
+                  {allTeams.map((team) => (
+                    <option key={team} value={team}>
+                      {team}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <div style={{ textAlign: "right" }}>{m.away}</div>
+              )}
 
               {isAdmin && (
                 <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>Uygula</button>
-                  <button style={css.btn(false)} onClick={() => editFixture(m.id)}>Düzenle</button>
-                  <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>Sıfırla</button>
+                  <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>
+                    Uygula
+                  </button>
+                  <button style={css.btn(false)} onClick={() => editFixture(m.id)}>
+                    Düzenle
+                  </button>
+                  <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>
+                    Sıfırla
+                  </button>
                 </div>
               )}
             </div>
           ))}
-      </div>
-    </div>
+        </div>
+      );
+    })}
+  </div>
+</div>
   </>
 )}
 
