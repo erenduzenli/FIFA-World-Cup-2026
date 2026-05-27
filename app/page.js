@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
+import { supabase } from "../lib/supabaseClient";
 
 const ADMIN_PIN = "eren554852";
 
@@ -206,7 +207,40 @@ function Logo() {
 
 export default function Page() {
   const [tab, setTab] = useState("leaderboard");
-  const [fixtures, setFixtures] = useState(makeFixtures());
+  const [fixtures, setFixtures] = useState([]);
+  useEffect(() => {
+  async function loadFixtures() {
+    const { data, error } = await supabase
+      .from("fixtures")
+      .select("*")
+      .order("id", { ascending: true });
+
+    if (error) {
+      console.error("Fixtures could not be loaded:", error);
+      return;
+    }
+
+    const formatted = data.map((m) => ({
+      id: m.id,
+      stage: m.stage,
+      group: m.group_name,
+      home: m.home,
+      away: m.away,
+      homeGoals: m.home_goals ?? "",
+      awayGoals: m.away_goals ?? "",
+      homeRedCards: m.home_red_cards ?? "",
+      awayRedCards: m.away_red_cards ?? "",
+      status: m.status,
+      locked: m.locked,
+      winner: m.winner,
+      winType: m.win_type,
+    }));
+
+    setFixtures(formatted);
+  }
+
+  loadFixtures();
+}, []);
   const [selection, setSelection] = useState({});
   const [name, setName] = useState("");
   const [champion, setChampion] = useState("");
