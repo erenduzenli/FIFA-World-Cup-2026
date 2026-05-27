@@ -619,10 +619,17 @@ onClick={() => {
           <>
             <h1 style={css.h1}>Lig Tablosu</h1>
             <p style={css.desc}>Anlık puan sıralaması</p>
-         {isAdmin && (
+{isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
     <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
       Kullanıcı paneli kontrolü
+    </div>
+
+    <div style={{ marginBottom: 10, color: "#94a3b8" }}>
+      Durum:{" "}
+      <b style={{ color: ownPickPanelVisible ? "#86efac" : "#fecaca" }}>
+        {ownPickPanelVisible ? "Kullanıcılara açık" : "Kullanıcılara kapalı"}
+      </b>
     </div>
 
     <button
@@ -630,8 +637,8 @@ onClick={() => {
       onClick={toggleOwnPickPanelVisible}
     >
       {ownPickPanelVisible
-        ? "Kendi Seçim Panelini Gizle"
-        : "Kendi Seçim Panelini Göster"}
+        ? "Kullanıcılardan Gizle"
+        : "Kullanıcılara Göster"}
     </button>
   </div>
 )}
@@ -1038,15 +1045,6 @@ onClick={() => {
       {selectionsVisible
         ? "Seçimleri Gizle"
         : "Seçimleri Göster"}
-    </button>
-
-    <button
-      style={{ ...css.btn(false), marginTop: 14, marginLeft: 10 }}
-      onClick={toggleOwnPickPanelVisible}
-    >
-      {ownPickPanelVisible
-        ? "Kendi Seçim Panelini Gizle"
-        : "Kendi Seçim Panelini Göster"}
     </button>
   </>
 )}
