@@ -266,20 +266,22 @@ export default function Page() {
   loadParticipants();
 }, []);
 
-  useEffect(() => {
+useEffect(() => {
   async function loadSettings() {
     const { data, error } = await supabase
       .from("settings")
-      .select("*")
-      .eq("key", "selections_visible")
-      .single();
+      .select("*");
 
     if (error) {
       console.error("Settings could not be loaded:", error);
       return;
     }
 
-    setSelectionsVisible(data.value === true);
+    const selectionsSetting = data.find((x) => x.key === "selections_visible");
+    const ownPanelSetting = data.find((x) => x.key === "own_pick_panel_visible");
+
+    setSelectionsVisible(selectionsSetting?.value === true);
+    setOwnPickPanelVisible(ownPanelSetting?.value !== false);
   }
 
   loadSettings();
@@ -306,7 +308,7 @@ export default function Page() {
   const [manualRedCards, setManualRedCards] = useState({});
   const [participants, setParticipants] = useState([]);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
-
+  const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(true);
   const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
   const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures, manualRedCards), [fixtures, manualRedCards]);
@@ -525,6 +527,28 @@ async function toggleSelectionsVisible() {
   setSelectionsVisible(newValue);
 }
 
+  async function toggleOwnPickPanelVisible() {
+  const newValue = !ownPickPanelVisible;
+
+  const res = await fetch("/api/admin/settings", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pin: adminPin,
+      key: "own_pick_panel_visible",
+      value: newValue,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Panel görünürlüğü güncellenemedi: " + text);
+    return;
+  }
+
+  setOwnPickPanelVisible(newValue);
+}
+
 async function revealOwnPicks() {
   if (!viewName.trim() || !viewPin.trim()) return;
 
@@ -595,7 +619,7 @@ onClick={() => {
           <>
             <h1 style={css.h1}>Lig Tablosu</h1>
             <p style={css.desc}>Anlık puan sıralaması</p>
-          {!selectionsVisible && !isAdmin && (
+          {ownPickPanelVisible && !selectionsVisible && !isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
     <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
       Kendi seçimimi göster
@@ -998,6 +1022,14 @@ onClick={() => {
       ? "Seçimleri Gizle"
       : "Seçimleri Göster"}
   </button>
+<button
+  style={{ ...css.btn(false), marginTop: 14, marginLeft: 10 }}
+  onClick={toggleOwnPickPanelVisible}
+>
+  {ownPickPanelVisible
+    ? "Kendi Seçim Panelini Gizle"
+    : "Kendi Seçim Panelini Göster"}
+</button>
 )}
   </div>
 </div>
