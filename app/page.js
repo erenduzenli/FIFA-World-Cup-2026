@@ -17,6 +17,7 @@ const pots = [
   { id: 11, teams: ["Suudi Arabistan", "Ürdün", "Bosna-Hersek", "Yeşil Burun Adaları"] },
   { id: 12, teams: ["Gana", "Curaçao", "Haiti", "Yeni Zelanda"] },
 ];
+const allTeams = groups.flatMap(([, teams]) => teams);
 
 const groups = [
   ["A", ["Meksika", "Güney Afrika", "Güney Kore", "Çekya"]],
@@ -388,14 +389,16 @@ async function markPlayed(id) {
   const match = fixtures.find((m) => m.id === id);
   if (!match) return;
 
-  const updates = {
-    home_goals: match.homeGoals === "" ? null : Number(match.homeGoals),
-    away_goals: match.awayGoals === "" ? null : Number(match.awayGoals),
-    home_red_cards: Number(match.homeRedCards || 0),
-    away_red_cards: Number(match.awayRedCards || 0),
-    status: "Tamamlandı",
-    locked: true,
-  };
+const updates = {
+  home: match.home,
+  away: match.away,
+  home_goals: match.homeGoals === "" ? null : Number(match.homeGoals),
+  away_goals: match.awayGoals === "" ? null : Number(match.awayGoals),
+  home_red_cards: Number(match.homeRedCards || 0),
+  away_red_cards: Number(match.awayRedCards || 0),
+  status: "Tamamlandı",
+  locked: true,
+};
 
   const res = await fetch("/api/admin/fixtures", {
     method: "PATCH",
@@ -915,7 +918,23 @@ onClick={() => {
               }}
             >
               <div>{m.stage}</div>
-              <div>{m.home}</div>
+              {isAdmin ? (
+  <select
+    disabled={m.locked}
+    style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+    value={m.home}
+    onChange={(e) => updateFixture(m.id, "home", e.target.value)}
+  >
+    <option value="TBD">TBD</option>
+    {allTeams.map((team) => (
+      <option key={team} value={team}>
+        {team}
+      </option>
+    ))}
+  </select>
+) : (
+  <div>{m.home}</div>
+)}
 
               {isAdmin ? (
                 <>
@@ -945,7 +964,23 @@ onClick={() => {
                 </div>
               )}
 
-              <div style={{ textAlign: "right" }}>{m.away}</div>
+              {isAdmin ? (
+  <select
+    disabled={m.locked}
+    style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+    value={m.away}
+    onChange={(e) => updateFixture(m.id, "away", e.target.value)}
+  >
+    <option value="TBD">TBD</option>
+    {allTeams.map((team) => (
+      <option key={team} value={team}>
+        {team}
+      </option>
+    ))}
+  </select>
+) : (
+  <div style={{ textAlign: "right" }}>{m.away}</div>
+)}
               <div>{m.status}</div>
 
               {isAdmin && (
@@ -1122,8 +1157,29 @@ onClick={() => {
                 ))}
               </div>
               <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginTop: 16 }}>
-                <input style={css.input} placeholder="Şampiyon Tahmini" value={champion} onChange={(e) => setChampion(e.target.value)} />
-                <input style={css.input} placeholder="Gol Kralı Tahmini" value={scorer} onChange={(e) => setScorer(e.target.value)} />
+<select
+  style={css.input}
+  value={champion}
+  onChange={(e) => setChampion(e.target.value)}
+  disabled={submitted}
+>
+  <option value="">Şampiyon Tahmini Seç</option>
+  {allTeams.map((team) => (
+    <option key={team} value={team}>
+      {team}
+    </option>
+  ))}
+</select>
+
+<input
+  style={css.input}
+  placeholder="Gol Kralı Tahmini"
+  value={scorer}
+  onChange={(e) => setScorer(e.target.value)}
+  disabled={submitted}
+/>
+    
+                
               </div>
 <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
   <button
