@@ -11,18 +11,18 @@ const pots = [
 ];
 
 const groups = [
-  ["A", ["Mexico", "South Africa", "South Korea", "Czechia"]],
-  ["B", ["Canada", "Bosnia and Herzegovina", "Qatar", "Switzerland"]],
-  ["C", ["Brazil", "Morocco", "Haiti", "Scotland"]],
-  ["D", ["United States", "Paraguay", "Australia", "Türkiye"]],
-  ["E", ["Germany", "Curaçao", "Ivory Coast", "Ecuador"]],
-  ["F", ["Netherlands", "Japan", "Sweden", "Tunisia"]],
-  ["G", ["Belgium", "Egypt", "Iran", "New Zealand"]],
-  ["H", ["Spain", "Cape Verde", "Saudi Arabia", "Uruguay"]],
-  ["I", ["France", "Senegal", "Iraq", "Norway"]],
-  ["J", ["Argentina", "Algeria", "Austria", "Jordan"]],
-  ["K", ["Portugal", "DR Congo", "Uzbekistan", "Colombia"]],
-  ["L", ["England", "Croatia", "Ghana", "Panama"]],
+  ["A", ["Meksika", "Güney Afrika", "Güney Kore", "Çekya"]],
+  ["B", ["Kanada", "Bosna-Hersek", "Katar", "İsviçre"]],
+  ["C", ["Brezilya", "Fas", "Haiti", "İskoçya"]],
+  ["D", ["ABD", "Paraguay", "Avustralya", "Türkiye"]],
+  ["E", ["Almanya", "Curaçao", "Fildişi Sahili", "Ekvador"]],
+  ["F", ["Hollanda", "Japonya", "İsveç", "Tunus"]],
+  ["G", ["Belçika", "Mısır", "İran", "Yeni Zelanda"]],
+  ["H", ["İspanya", "Yeşil Burun Adaları", "Suudi Arabistan", "Uruguay"]],
+  ["I", ["Fransa", "Senegal", "Irak", "Norveç"]],
+  ["J", ["Arjantin", "Cezayir", "Avusturya", "Ürdün"]],
+  ["K", ["Portekiz", "DR Kongo", "Özbekistan", "Kolombiya"]],
+  ["L", ["İngiltere", "Hırvatistan", "Gana", "Panama"]],
 ];
 
 function makeGroupFixtures() {
