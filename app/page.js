@@ -4,10 +4,18 @@ import React, { useEffect, useMemo, useState } from "react";
 import { supabase } from "../lib/supabaseClient";
 
 const pots = [
-  { id: 1, teams: ["Spain", "France", "Argentina", "England"] },
-  { id: 2, teams: ["Brazil", "Portugal", "Netherlands", "Morocco"] },
-  { id: 3, teams: ["Germany", "Italy", "Croatia", "Uruguay"] },
-  { id: 4, teams: ["USA", "Mexico", "Japan", "Belgium"] },
+  { id: 1, teams: ["Fransa", "İspanya", "Arjantin", "İngiltere"] },
+  { id: 2, teams: ["Portekiz", "Brezilya", "Hollanda", "Fas"] },
+  { id: 3, teams: ["Belçika", "Almanya", "Hırvatistan", "Kolombiya"] },
+  { id: 4, teams: ["Senegal", "Meksika", "ABD", "Uruguay"] },
+  { id: 5, teams: ["Japonya", "İsviçre", "İran", "Türkiye"] },
+  { id: 6, teams: ["Ekvador", "Avusturya", "Güney Kore", "Avustralya"] },
+  { id: 7, teams: ["Cezayir", "Mısır", "Kanada", "Norveç"] },
+  { id: 8, teams: ["Panama", "Fildişi Sahili", "İsveç", "Paraguay"] },
+  { id: 9, teams: ["Çekya", "İskoçya", "Tunus", "DR Kongo"] },
+  { id: 10, teams: ["Özbekistan", "Katar", "Irak", "Güney Afrika"] },
+  { id: 11, teams: ["Suudi Arabistan", "Ürdün", "Bosna-Hersek", "Yeşil Burun Adaları"] },
+  { id: 12, teams: ["Gana", "Curaçao", "Haiti", "Yeni Zelanda"] },
 ];
 
 const groups = [
