@@ -323,6 +323,26 @@ useEffect(() => {
 
   loadTeamRedCards();
 }, []);
+  useEffect(() => {
+  async function loadEliminatedTeams() {
+    const { data, error } = await supabase
+      .from("eliminated_teams")
+      .select("*");
+
+    if (error) {
+      console.error("Eliminated teams could not be loaded:", error);
+      return;
+    }
+
+    const formatted = Object.fromEntries(
+      data.map((x) => [x.team, true])
+    );
+
+    setEliminatedTeams(formatted);
+  }
+
+  loadEliminatedTeams();
+}, []);
   const [selection, setSelection] = useState({});
   const [name, setName] = useState("");
   const [pin, setPin] = useState("");
@@ -343,6 +363,7 @@ useEffect(() => {
   }
 }, []);
   const [manualRedCards, setManualRedCards] = useState({});
+  const [eliminatedTeams, setEliminatedTeams] = useState({});
   const [participants, setParticipants] = useState([]);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
   const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(false);
@@ -515,6 +536,36 @@ async function updateManualRedCards(team, value) {
     alert("Kırmızı kart kaydedilemedi: " + text);
   }
 }
+  async function toggleEliminatedTeam(team) {
+  const newValue = !eliminatedTeams[team];
+
+  setEliminatedTeams((prev) => ({
+    ...prev,
+    [team]: newValue,
+  }));
+
+  const res = await fetch("/api/admin/eliminated-teams", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pin: adminPin,
+      team,
+      eliminated: newValue,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Elendi bilgisi kaydedilemedi: " + text);
+  }
+}
+
+function teamStyle(team) {
+  return eliminatedTeams[team]
+    ? { color: "#f87171", fontWeight: 800 }
+    : {};
+}
+  
 async function submitPicks() {
   if (!name.trim() || !pin.trim() || !champion.trim() || !scorer.trim()) return;
   if (completed !== pots.length) return;
@@ -860,7 +911,7 @@ onClick={() => {
                   gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 40px 1fr",
                 }}
               >
-                <div>{m.home}</div>
+                <div style={teamStyle(m.home)}>{m.home}</div>
 
                 {isAdmin ? (
                   <>
@@ -890,7 +941,7 @@ onClick={() => {
                   </div>
                 )}
 
-                <div style={{ textAlign: "right" }}>{m.away}</div>
+                <div style={{ textAlign: "right", ...teamStyle(m.away) }}>{m.away}</div>
 
                 {isAdmin && (
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -970,7 +1021,7 @@ onClick={() => {
                   ))}
                 </select>
               ) : (
-                <div>{m.home}</div>
+                  <div style={teamStyle(m.home)}>{m.home}</div>
               )}
 
               {isAdmin ? (
@@ -1033,7 +1084,7 @@ onClick={() => {
                   ))}
                 </select>
               ) : (
-                <div style={{ textAlign: "right" }}>{m.away}</div>
+                  <div style={{ textAlign: "right", ...teamStyle(m.away) }}>{m.away}</div>
               )}
 
               {isAdmin && (
@@ -1063,19 +1114,35 @@ onClick={() => {
           <>
             <h1 style={css.h1}>Takım Puanları</h1>
             <p style={css.desc}>Takım katkısı = maç puanı + attığı gol. Örn. 3-1 galibiyet = 3 + 3 = 6.</p>
-            <div style={css.card}>
-              <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr" }}>
-                <div>Takım</div><div>Toplam Puan</div><div>Puan</div><div>Gol</div><div>Yediği Gol</div><div>Kırmızı Kart</div>
-              </div>
+<div style={css.card}>
+  <div
+    style={{
+      ...css.row,
+      ...css.head,
+      gridTemplateColumns: isAdmin
+        ? "2fr 1fr 1fr 1fr 1fr 1fr 1fr"
+        : "2fr 1fr 1fr 1fr 1fr 1fr",
+    }}
+  >
+    <div>Takım</div>
+    <div>Toplam Puan</div>
+    <div>Puan</div>
+    <div>Gol</div>
+    <div>Yediği Gol</div>
+    <div>Kırmızı Kart</div>
+    {isAdmin && <div>Elendi</div>}
+  </div>
 {teamPoints.map((x) => (
   <div
     key={x.team}
     style={{
       ...css.row,
-      gridTemplateColumns: "2fr 1fr 1fr 1fr 1fr 1fr",
+      gridTemplateColumns: isAdmin
+        ? "2fr 1fr 1fr 1fr 1fr 1fr 1fr"
+        : "2fr 1fr 1fr 1fr 1fr 1fr",
     }}
   >
-    <div>{x.team}</div>
+    <div style={teamStyle(x.team)}>{x.team}</div>
 
     <div style={{ color: "#facc15", fontWeight: 800 }}>
       {x.totalPoints}
@@ -1097,6 +1164,14 @@ onClick={() => {
       />
     ) : (
       <div>{x.redCards}</div>
+    )}
+
+    {isAdmin && (
+      <input
+        type="checkbox"
+        checked={!!eliminatedTeams[x.team]}
+        onChange={() => toggleEliminatedTeam(x.team)}
+      />
     )}
   </div>
 ))}
