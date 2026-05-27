@@ -462,7 +462,7 @@ function canSeeParticipant() {
 
         return (
           <div key={group} style={css.card}>
-            <div style={{ ...css.row, ...css.head, gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 90px 1fr" }}>
+            <div style={{ ...css.row, ...css.head, gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 70px 1fr" }}>
               <div>Grup {group}</div>
               {isAdmin ? (
                 <>
@@ -473,8 +473,8 @@ function canSeeParticipant() {
                 </>
               ) : (
                 <>
-                  <div>Skor</div>
-                  <div>Rakip</div>
+                  <div></div>
+                  <div></div>
                 </>
               )}
             </div>
@@ -484,7 +484,7 @@ function canSeeParticipant() {
                 key={m.id}
                 style={{
                   ...css.row,
-                  gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 90px 1fr",
+                  gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 70px 1fr",
                 }}
               >
                 <div>{m.home}</div>
