@@ -17,7 +17,6 @@ const pots = [
   { id: 11, teams: ["Suudi Arabistan", "Ürdün", "Bosna-Hersek", "Yeşil Burun Adaları"] },
   { id: 12, teams: ["Gana", "Curaçao", "Haiti", "Yeni Zelanda"] },
 ];
-const allTeams = groups.flatMap(([, teams]) => teams);
 
 const groups = [
   ["A", ["Meksika", "Güney Afrika", "Güney Kore", "Çekya"]],
@@ -33,6 +32,7 @@ const groups = [
   ["K", ["Portekiz", "DR Kongo", "Özbekistan", "Kolombiya"]],
   ["L", ["İngiltere", "Hırvatistan", "Gana", "Panama"]],
 ];
+const allTeams = groups.flatMap(([, teams]) => teams);
 
 function makeGroupFixtures() {
   return groups.flatMap(([group, teams]) => {
