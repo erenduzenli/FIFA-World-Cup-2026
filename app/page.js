@@ -517,7 +517,7 @@ function canSeeParticipant() {
                   </div>
                 )}
 
-                <div>{m.away}</div>
+                <div style={{ textAlign: "right" }}>{m.away}</div>
 
                 {isAdmin && (
                   <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
@@ -583,7 +583,7 @@ function canSeeParticipant() {
                 </div>
               )}
 
-              <div>{m.away}</div>
+              <div style={{ textAlign: "right" }}>{m.away}</div>
               <div>{m.status}</div>
 
               {isAdmin && (
