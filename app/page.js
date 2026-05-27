@@ -209,7 +209,6 @@ export default function Page() {
   const [fixtures, setFixtures] = useState(makeFixtures());
   const [selection, setSelection] = useState({});
   const [name, setName] = useState("");
-  const [pin, setPin] = useState("");
   const [champion, setChampion] = useState("");
   const [scorer, setScorer] = useState("");
   const [submitted, setSubmitted] = useState(false);
@@ -271,8 +270,9 @@ export default function Page() {
     }));
   }
 function submitPicks() {
-  if (!name.trim() || !pin.trim() || !champion.trim() || !scorer.trim()) return;
+  if (!name.trim() || !champion.trim() || !scorer.trim()) return;
   if (completed !== pots.length) return;
+  if (submitted) return;
 
   const picks = pots.map((p) => selection[p.id]);
 
@@ -281,7 +281,6 @@ function submitPicks() {
     {
       id: Date.now(),
       name: name.trim(),
-      pin: pin.trim(),
       picks,
       champion: champion.trim(),
       scorer: scorer.trim(),
@@ -315,11 +314,10 @@ function canSeeParticipant() {
             {isAdmin ? (
 <button
   style={css.btn(true)}
-  onClick={() => {
-    setIsAdmin(false);
-    setName("");
-    setPin("");
-  }}
+onClick={() => {
+  setIsAdmin(false);
+  setName("");
+}}
 >
   ✅ Admin açık
 </button>            ) : (
@@ -730,10 +728,15 @@ function canSeeParticipant() {
           <>
             <h1 style={css.h1}>Katıl</h1><p style={css.desc}>Her torba FIFA erkek milli takım sıralaması kaynağına göre oluşturulacak.</p>
             <div style={{ ...css.card, padding: 20 }}>
-              <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 12, marginBottom: 16 }}>
-                <input style={css.input} placeholder="İsim" value={name} onChange={(e) => setName(e.target.value)} />
-                <input style={css.input} placeholder="PIN" value={pin} onChange={(e) => setPin(e.target.value)} />
-              </div>
+            <div style={{ marginBottom: 16 }}>
+  <input
+    style={css.input}
+    placeholder="İsim"
+    value={name}
+    onChange={(e) => setName(e.target.value)}
+    disabled={submitted}
+  />
+</div>
               <div style={{ color: "#94a3b8", marginBottom: 16 }}>{completed}/{pots.length} tamamlandı</div>
               <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(260px,1fr))", gap: 14 }}>
                 {pots.map((p) => (
@@ -749,9 +752,15 @@ function canSeeParticipant() {
                 <input style={css.input} placeholder="Şampiyon Tahmini" value={champion} onChange={(e) => setChampion(e.target.value)} />
                 <input style={css.input} placeholder="Gol Kralı Tahmini" value={scorer} onChange={(e) => setScorer(e.target.value)} />
               </div>
-              <div style={{ display: "flex", gap: 12, marginTop: 16 }}>
-                <button style={css.btn(false)}>Kaydet</button><button style={css.btn(true)} onClick={submitPicks}>Gönder</button>
-              </div>
+<div style={{ display: "flex", gap: 12, marginTop: 16 }}>
+  <button
+    style={css.btn(true)}
+    onClick={submitPicks}
+    disabled={submitted}
+  >
+    Gönder
+  </button>
+</div>
               {submitted && <div style={{ ...css.box, marginTop: 16, color: "#86efac" }}>Seçim gönderildi. Artık değiştirilemez.</div>}
             </div>
           </>
