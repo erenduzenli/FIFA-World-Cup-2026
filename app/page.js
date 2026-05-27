@@ -308,7 +308,7 @@ useEffect(() => {
   const [manualRedCards, setManualRedCards] = useState({});
   const [participants, setParticipants] = useState([]);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
-  const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(true);
+  const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(false);
   const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
   const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures, manualRedCards), [fixtures, manualRedCards]);
@@ -642,7 +642,7 @@ onClick={() => {
     </button>
   </div>
 )}
-          {ownPickPanelVisible && !selectionsVisible && !isAdmin && (
+          {ownPickPanelVisible && !isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
     <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
       Kendi seçimimi göster
