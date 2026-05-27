@@ -241,6 +241,32 @@ export default function Page() {
 
   loadFixtures();
 }, []);
+  useEffect(() => {
+  async function loadParticipants() {
+    const { data, error } = await supabase
+      .from("participants")
+      .select("*")
+      .order("submitted_at", { ascending: true });
+
+    if (error) {
+      console.error("Participants could not be loaded:", error);
+      return;
+    }
+
+    const formatted = data.map((p) => ({
+      id: p.id,
+      name: p.name,
+      picks: p.picks,
+      champion: p.champion,
+      scorer: p.scorer,
+      submittedAt: p.submitted_at,
+    }));
+
+    setParticipants(formatted);
+  }
+
+  loadParticipants();
+}, []);
   const [selection, setSelection] = useState({});
   const [name, setName] = useState("");
   const [champion, setChampion] = useState("");
@@ -303,22 +329,41 @@ export default function Page() {
       [team]: value.replace(/[^0-9]/g, ""),
     }));
   }
-function submitPicks() {
+async function submitPicks() {
   if (!name.trim() || !champion.trim() || !scorer.trim()) return;
   if (completed !== pots.length) return;
   if (submitted) return;
 
   const picks = pots.map((p) => selection[p.id]);
 
+  const newParticipant = {
+    name: name.trim(),
+    picks,
+    champion: champion.trim(),
+    scorer: scorer.trim(),
+  };
+
+  const { data, error } = await supabase
+    .from("participants")
+    .insert(newParticipant)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Participant could not be saved:", error);
+    alert("Kayıt sırasında hata oluştu.");
+    return;
+  }
+
   setParticipants((prev) => [
     ...prev,
     {
-      id: Date.now(),
-      name: name.trim(),
-      picks,
-      champion: champion.trim(),
-      scorer: scorer.trim(),
-      submittedAt: Date.now(),
+      id: data.id,
+      name: data.name,
+      picks: data.picks,
+      champion: data.champion,
+      scorer: data.scorer,
+      submittedAt: data.submitted_at,
     },
   ]);
 
