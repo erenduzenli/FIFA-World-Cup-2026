@@ -232,12 +232,22 @@ function calculateTeamGamePoints(
     points[m.home].redCards += hrc;
     points[m.away].redCards += arc;
 
-    if (hg > ag) points[m.home].matchPoints += 3;
-    else if (ag > hg) points[m.away].matchPoints += 3;
-    else {
-      points[m.home].matchPoints += 1;
-      points[m.away].matchPoints += 1;
-    }
+if (
+  m.stage !== "Grup" &&
+  m.winner &&
+  m.winner !== "TBD" &&
+  points[m.winner] &&
+  (m.winType === "extra_time" || m.winType === "penalties")
+) {
+  points[m.winner].matchPoints += 3;
+} else if (hg > ag) {
+  points[m.home].matchPoints += 3;
+} else if (ag > hg) {
+  points[m.away].matchPoints += 3;
+} else {
+  points[m.home].matchPoints += 1;
+  points[m.away].matchPoints += 1;
+}
   });
 
   if (groupBonusActive) {
@@ -612,6 +622,8 @@ const updates = {
   away_goals: match.awayGoals === "" ? null : Number(match.awayGoals),
   home_red_cards: Number(match.homeRedCards || 0),
   away_red_cards: Number(match.awayRedCards || 0),
+  winner: match.winner || null,
+  win_type: match.winType || null,
   status: "Tamamlandı",
   locked: true,
 };
@@ -662,14 +674,16 @@ async function editFixture(id) {
 }
 
 async function resetFixture(id) {
-  const updates = {
-    home_goals: null,
-    away_goals: null,
-    home_red_cards: 0,
-    away_red_cards: 0,
-    status: "Yakında",
-    locked: false,
-  };
+const updates = {
+  home_goals: null,
+  away_goals: null,
+  home_red_cards: 0,
+  away_red_cards: 0,
+  winner: null,
+  win_type: null,
+  status: "Yakında",
+  locked: false,
+};
 
   const res = await fetch("/api/admin/fixtures", {
     method: "PATCH",
@@ -683,21 +697,23 @@ async function resetFixture(id) {
     return;
   }
 
-  setFixtures((prev) =>
-    prev.map((m) =>
-      m.id === id
-        ? {
-            ...m,
-            homeGoals: "",
-            awayGoals: "",
-            homeRedCards: "",
-            awayRedCards: "",
-            status: "Yakında",
-            locked: false,
-          }
-        : m
-    )
-  );
+setFixtures((prev) =>
+  prev.map((m) =>
+    m.id === id
+      ? {
+          ...m,
+          homeGoals: "",
+          awayGoals: "",
+          homeRedCards: "",
+          awayRedCards: "",
+          winner: "",
+          winType: "",
+          status: "Yakında",
+          locked: false,
+        }
+      : m
+  )
+);
 }
   
 async function updateManualRedCards(team, value) {
@@ -1325,19 +1341,48 @@ return (
                   <div style={{ textAlign: "right", ...teamStyle(m.away) }}>{m.away}</div>
               )}
 
-              {isAdmin && (
-                <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-                  <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>
-                    Uygula
-                  </button>
-                  <button style={css.btn(false)} onClick={() => editFixture(m.id)}>
-                    Düzenle
-                  </button>
-                  <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>
-                    Sıfırla
-                  </button>
-                </div>
-              )}
+{isAdmin && (
+  <div style={{ display: "grid", gap: 6 }}>
+    <select
+      disabled={m.locked}
+      style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+      value={m.winner || ""}
+      onChange={(e) => updateFixture(m.id, "winner", e.target.value)}
+    >
+      <option value="">Kazanan</option>
+      {[m.home, m.away]
+        .filter((team) => team && team !== "TBD")
+        .map((team) => (
+          <option key={team} value={team}>
+            {team}
+          </option>
+        ))}
+    </select>
+
+    <select
+      disabled={m.locked}
+      style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
+      value={m.winType || ""}
+      onChange={(e) => updateFixture(m.id, "winType", e.target.value)}
+    >
+      <option value="">Normal süre</option>
+      <option value="extra_time">Uzatma</option>
+      <option value="penalties">Penaltı</option>
+    </select>
+
+    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+      <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>
+        Uygula
+      </button>
+      <button style={css.btn(false)} onClick={() => editFixture(m.id)}>
+        Düzenle
+      </button>
+      <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>
+        Sıfırla
+      </button>
+    </div>
+  </div>
+)}
             </div>
           ))}
         </div>
