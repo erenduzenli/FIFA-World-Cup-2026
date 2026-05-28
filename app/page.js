@@ -1094,10 +1094,21 @@ gridTemplateColumns: isAdmin
       {groups.map(([group]) => {
         const groupFixtures = fixtures.filter((m) => m.stage === "Grup" && m.group === group);
 
-        return (
-          <div key={group} style={css.card}>
+return (
+  <div key={group} style={css.card}>
+    <div
+      style={{
+        padding: "12px 16px",
+        background: "#0d1c40",
+        color: "#facc15",
+        fontWeight: 900,
+        borderBottom: "2px solid #facc15",
+      }}
+    >
+      Grup {group}
+    </div>
 
-            {groupFixtures.map((m) => (
+    {groupFixtures.map((m) => (
               <div
                 key={m.id}
                 style={{
@@ -1169,10 +1180,21 @@ gridTemplateColumns: isAdmin
 
       if (stageFixtures.length === 0) return null;
 
-      return (
-        <div key={stage} style={css.card}>
+return (
+  <div key={stage} style={css.card}>
+    <div
+      style={{
+        padding: "12px 16px",
+        background: "#0d1c40",
+        color: "#facc15",
+        fontWeight: 900,
+        borderBottom: "2px solid #facc15",
+      }}
+    >
+      {stage}
+    </div>
 
-          {stageFixtures.map((m, index) => (
+    {stageFixtures.map((m, index) => (
             <div
               key={m.id}
               style={{
