@@ -294,11 +294,13 @@ useEffect(() => {
       return;
     }
 
-    const selectionsSetting = data.find((x) => x.key === "selections_visible");
-    const ownPanelSetting = data.find((x) => x.key === "own_pick_panel_visible");
+const selectionsSetting = data.find((x) => x.key === "selections_visible");
+const ownPanelSetting = data.find((x) => x.key === "own_pick_panel_visible");
+const groupBonusSetting = data.find((x) => x.key === "group_bonus_active");
 
-    setSelectionsVisible(selectionsSetting?.value === true);
-    setOwnPickPanelVisible(ownPanelSetting?.value !== false);
+setSelectionsVisible(selectionsSetting?.value === true);
+setOwnPickPanelVisible(ownPanelSetting?.value !== false);
+setGroupBonusActive(groupBonusSetting?.value === true);
   }
 
   loadSettings();
@@ -393,6 +395,7 @@ useEffect(() => {
   const [participants, setParticipants] = useState([]);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
   const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(false);
+  const [groupBonusActive, setGroupBonusActive] = useState(false);
   const [tournamentResults, setTournamentResults] = useState({
   champion: "",
   runner_up: "",
@@ -693,6 +696,27 @@ async function toggleSelectionsVisible() {
   setSelectionsVisible(newValue);
 }
 
+  async function toggleGroupBonusActive() {
+  const newValue = !groupBonusActive;
+
+  const res = await fetch("/api/admin/settings", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pin: adminPin,
+      key: "group_bonus_active",
+      value: newValue,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Grup bonus ayarı güncellenemedi: " + text);
+    return;
+  }
+
+  setGroupBonusActive(newValue);
+}
   async function toggleOwnPickPanelVisible() {
   const newValue = !ownPickPanelVisible;
 
@@ -1308,6 +1332,29 @@ onClick={() => {
     <div style={{ fontSize: 16, fontWeight: 800 }}>🥉 3. sıra: toplam ödülün %10’u</div>
   </div>
 </div>
+{isAdmin && (
+  <div style={{ ...css.card, padding: 16, marginTop: 28 }}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>
+      Grup Bonusları
+    </h2>
+
+    <div style={{ marginBottom: 10, color: "#94a3b8" }}>
+      Durum:{" "}
+      <b style={{ color: groupBonusActive ? "#86efac" : "#fecaca" }}>
+        {groupBonusActive ? "Aktif" : "Kapalı"}
+      </b>
+    </div>
+
+    <button
+      style={css.btn(groupBonusActive)}
+      onClick={toggleGroupBonusActive}
+    >
+      {groupBonusActive
+        ? "Grup Bonuslarını Kapat"
+        : "Grup Bonuslarını Aktif Et"}
+    </button>
+  </div>
+)}
   {isAdmin && (
   <div style={{ ...css.card, padding: 16, marginTop: 28 }}>
     <h2 style={{ color: "#facc15", marginTop: 0 }}>
