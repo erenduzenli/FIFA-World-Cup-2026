@@ -1466,7 +1466,7 @@ return (
   Kırmızı kartlar ve en çok gol yiyen takım cezası toplam puandan düşülür.
 </p>
           <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
-  <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8, fontSize: 18 }}>
+  <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8, fontSize: 22 }}>
     Tahmin Bonusları
   </div>
 
