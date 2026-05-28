@@ -33,6 +33,9 @@ const groups = [
   ["L", ["İngiltere", "Hırvatistan", "Gana", "Panama"]],
 ];
 const allTeams = groups.flatMap(([, teams]) => teams);
+const sortedTeams = [...allTeams].sort((a, b) =>
+  a.localeCompare(b, "tr-TR")
+);
 const knockoutStages = [
   "Son 32",
   "Son 16",
@@ -302,9 +305,11 @@ if (
       t.mostConcedingPenalty;
   });
 
-  return Object.values(points).sort(
-    (a, b) => b.totalPoints - a.totalPoints || a.team.localeCompare(b.team)
-  );
+return Object.values(points).sort(
+  (a, b) =>
+    b.totalPoints - a.totalPoints ||
+    a.team.localeCompare(b.team, "tr-TR")
+);
 }
 
 function Logo() {
@@ -1321,7 +1326,7 @@ return (
                   onChange={(e) => updateFixture(m.id, "home", e.target.value)}
                 >
                   <option value="TBD">TBD</option>
-                  {allTeams.map((team) => (
+                  {sortedTeams.map((team) => (
                     <option key={team} value={team}>
                       {team}
                     </option>
@@ -1384,7 +1389,7 @@ return (
                   onChange={(e) => updateFixture(m.id, "away", e.target.value)}
                 >
                   <option value="TBD">TBD</option>
-                  {allTeams.map((team) => (
+                  {sortedTeams.map((team) => (
                     <option key={team} value={team}>
                       {team}
                     </option>
@@ -1452,7 +1457,7 @@ return (
 
 <div style={{ color: "#94a3b8", marginBottom: 12 }}>
   Doğru şampiyon tahmini ve doğru gol kralı tahmini, her biri ayrı ayrı 10 puanlık katkı sağlar.
-  Bu puanlar takım puanlarına değil, doğrudan katılımcının Lig Tablosundaki toplam puanına eklenir.
+  Bu puanlar takım puanlarına değil, doğrudan katılımcının Lig Tablosu'ndaki toplam puanına eklenir.
 </div>
 
   <div
@@ -1655,7 +1660,7 @@ return (
         onChange={(e) => updateTournamentResult("champion", e.target.value)}
       >
         <option value="">Şampiyon</option>
-        {allTeams.map((team) => (
+        {sortedTeams.map((team) => (
           <option key={team} value={team}>{team}</option>
         ))}
       </select>
@@ -1666,7 +1671,7 @@ return (
         onChange={(e) => updateTournamentResult("runner_up", e.target.value)}
       >
         <option value="">İkinci</option>
-        {allTeams.map((team) => (
+        {sortedTeams.map((team) => (
           <option key={team} value={team}>{team}</option>
         ))}
       </select>
@@ -1677,7 +1682,7 @@ return (
         onChange={(e) => updateTournamentResult("third_place", e.target.value)}
       >
         <option value="">Üçüncü</option>
-        {allTeams.map((team) => (
+        {sortedTeams.map((team) => (
           <option key={team} value={team}>{team}</option>
         ))}
       </select>
@@ -1697,7 +1702,7 @@ return (
         }
       >
         <option value="">En Çok Gol Atan Takım</option>
-        {allTeams.map((team) => (
+        {sortedTeams.map((team) => (
           <option key={team} value={team}>{team}</option>
         ))}
       </select>
@@ -1710,7 +1715,7 @@ return (
         }
       >
         <option value="">En Çok Gol Yiyen Takım</option>
-        {allTeams.map((team) => (
+        {sortedTeams.map((team) => (
           <option key={team} value={team}>{team}</option>
         ))}
       </select>
@@ -1796,7 +1801,7 @@ return (
   disabled={submitted}
 >
   <option value="">Şampiyon Tahmini Seç</option>
-  {allTeams.map((team) => (
+  {sortedTeams.map((team) => (
     <option key={team} value={team}>
       {team}
     </option>
