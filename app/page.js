@@ -500,35 +500,73 @@ useEffect(() => {
 const leaderboardRows = useMemo(() => {
   return participants
     .map((p) => {
-      const teamPointsTotal = p.picks.reduce((sum, team) => {
-        const row = teamPoints.find((x) => x.team === team);
-        return sum + (row?.totalPoints || 0);
-      }, 0);
+      const pickedRows = p.picks.map((team) =>
+        teamPoints.find((x) => x.team === team)
+      );
 
-      const championPredictionBonus =
+      const teamPointsTotal = pickedRows.reduce(
+        (sum, row) => sum + (row?.totalPoints || 0),
+        0
+      );
+
+      const selectedGoals = pickedRows.reduce(
+        (sum, row) => sum + (row?.goals || 0),
+        0
+      );
+
+      const championPredictionCorrect =
         tournamentResults.champion &&
-        p.champion === tournamentResults.champion
-          ? 10
-          : 0;
+        p.champion === tournamentResults.champion;
 
-      const scorerPredictionBonus =
+      const scorerPredictionCorrect =
         tournamentResults.top_scorer &&
-        normalizeText(p.scorer) === normalizeText(tournamentResults.top_scorer)
-          ? 10
-          : 0;
+        normalizeText(p.scorer) === normalizeText(tournamentResults.top_scorer);
+
+      const hasChampionTeam =
+        tournamentResults.champion &&
+        p.picks.includes(tournamentResults.champion);
+
+      const hasRunnerUpTeam =
+        tournamentResults.runner_up &&
+        p.picks.includes(tournamentResults.runner_up);
+
+      const hasThirdPlaceTeam =
+        tournamentResults.third_place &&
+        p.picks.includes(tournamentResults.third_place);
+
+      const championPredictionBonus = championPredictionCorrect ? 10 : 0;
+      const scorerPredictionBonus = scorerPredictionCorrect ? 10 : 0;
 
       return {
         ...p,
         teamPointsTotal,
         championPredictionBonus,
         scorerPredictionBonus,
+        selectedGoals,
+        championPredictionCorrect,
+        scorerPredictionCorrect,
+        hasChampionTeam,
+        hasRunnerUpTeam,
+        hasThirdPlaceTeam,
         points:
           teamPointsTotal +
           championPredictionBonus +
           scorerPredictionBonus,
       };
     })
-    .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
+    .sort(
+      (a, b) =>
+        b.points - a.points ||
+        Number(b.championPredictionCorrect) -
+          Number(a.championPredictionCorrect) ||
+        Number(b.scorerPredictionCorrect) -
+          Number(a.scorerPredictionCorrect) ||
+        b.selectedGoals - a.selectedGoals ||
+        Number(b.hasChampionTeam) - Number(a.hasChampionTeam) ||
+        Number(b.hasRunnerUpTeam) - Number(a.hasRunnerUpTeam) ||
+        Number(b.hasThirdPlaceTeam) - Number(a.hasThirdPlaceTeam) ||
+        new Date(a.submittedAt) - new Date(b.submittedAt)
+    );
 }, [participants, teamPoints, tournamentResults]);
 
   const tabs = [
