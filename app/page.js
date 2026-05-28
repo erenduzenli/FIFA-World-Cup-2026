@@ -892,16 +892,16 @@ onClick={() => {
       style={{
         ...css.row,
         ...css.head,
-        gridTemplateColumns: isAdmin
-          ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
-          : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
+gridTemplateColumns: isAdmin
+  ? "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
+  : "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
         minWidth: 1500,
       }}
     >
       <div>#</div>
       <div>Ad Soyad</div>
       <div>Puan</div>
-
+<div>Grup Bonusu</div>
       {pots.map((p) => (
         <div key={p.id}>Grup {p.id}</div>
       ))}
@@ -925,9 +925,9 @@ onClick={() => {
             key={p.id}
             style={{
               ...css.row,
-              gridTemplateColumns: isAdmin
-                ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
-                : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
+gridTemplateColumns: isAdmin
+  ? "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
+  : "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
               minWidth: 1500,
             }}
           >
@@ -937,7 +937,9 @@ onClick={() => {
             <div style={{ color: "#facc15", fontWeight: 900 }}>
               {p.points}
             </div>
-
+<div style={{ color: "#86efac", fontWeight: 800 }}>
+  {p.groupBonus}
+</div>
 {p.picks.map((pick, i) => (
   <div key={i} style={visible ? teamStyle(pick) : {}}>
     {visible ? pick : "****"}
