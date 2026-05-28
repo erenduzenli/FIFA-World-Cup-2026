@@ -1399,6 +1399,9 @@ gridTemplateColumns: isAdmin
     ))}
   </div>
 </div>
+          </>
+        )}
+
         {tab === "rules" && (
           <>
             <h1 style={css.h1}>Kurallar</h1><p style={css.desc}>Puanlama kuralları</p>
