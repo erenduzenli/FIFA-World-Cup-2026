@@ -234,10 +234,11 @@ function calculateTeamGamePoints(
 
 if (
   m.stage !== "Grup" &&
+  hg === ag &&
   m.winner &&
   m.winner !== "TBD" &&
   points[m.winner] &&
-  (m.winType === "extra_time" || m.winType === "penalties")
+  m.winType === "penalties"
 ) {
   points[m.winner].matchPoints += 3;
 } else if (hg > ag) {
@@ -1346,28 +1347,20 @@ return (
     <select
       disabled={m.locked}
       style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
-      value={m.winner || ""}
-      onChange={(e) => updateFixture(m.id, "winner", e.target.value)}
+      value={m.winType === "penalties" ? m.winner || "" : ""}
+      onChange={(e) => {
+        updateFixture(m.id, "winner", e.target.value);
+        updateFixture(m.id, "winType", e.target.value ? "penalties" : "");
+      }}
     >
-      <option value="">Kazanan</option>
+      <option value="">Penaltı yok</option>
       {[m.home, m.away]
         .filter((team) => team && team !== "TBD")
         .map((team) => (
           <option key={team} value={team}>
-            {team}
+            {team} penaltılarla kazandı
           </option>
         ))}
-    </select>
-
-    <select
-      disabled={m.locked}
-      style={{ ...css.input, opacity: m.locked ? 0.55 : 1 }}
-      value={m.winType || ""}
-      onChange={(e) => updateFixture(m.id, "winType", e.target.value)}
-    >
-      <option value="">Normal süre</option>
-      <option value="extra_time">Uzatma</option>
-      <option value="penalties">Penaltı</option>
     </select>
 
     <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
