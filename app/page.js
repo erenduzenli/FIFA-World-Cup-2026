@@ -1233,12 +1233,13 @@ onClick={() => {
   <div style={{ marginBottom: 8 }}>
     Katılımcıların toplam puanı eşitse sıralama aşağıdaki önceliğe göre belirlenir:
   </div>
-  <div>1. Seçilen takımların attığı toplam gol</div>
-  <div>2. Gol kralı tahmini</div>
-  <div>3. Şampiyon tahmini</div>
-  <div>4. İkinci olan takım</div>
-  <div>5. Üçüncü olan takım</div>
-  <div>6. Daha erken katılım zamanı</div>
+  <div>1. Şampiyon tahmininin doğru olması</div>
+  <div>2. Gol kralı tahmininin doğru olması</div>
+  <div>3. Seçilen takımların attığı toplam gol</div>
+  <div>4. Seçilen takımlardan birinin şampiyon olması</div>
+  <div>5. Seçilen takımlardan birinin ikinci olması</div>
+  <div>6. Seçilen takımlardan birinin üçüncü olması</div>
+  <div>7. Daha erken katılım zamanı</div>
 </div>
 
   <div style={{ ...css.box, borderColor: "#facc15" }}>
