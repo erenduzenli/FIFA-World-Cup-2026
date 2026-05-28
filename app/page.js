@@ -303,7 +303,7 @@ useEffect(() => {
 
   loadSettings();
 }, []);
-  useEffect(() => {
+ useEffect(() => {
   async function loadTeamRedCards() {
     const { data, error } = await supabase
       .from("team_red_cards")
@@ -320,6 +320,10 @@ useEffect(() => {
 
     setManualRedCards(formatted);
   }
+
+  loadTeamRedCards();
+}, []);
+
 useEffect(() => {
   async function loadTournamentResults() {
     const { data, error } = await supabase
@@ -344,9 +348,6 @@ useEffect(() => {
   }
 
   loadTournamentResults();
-}, []);
-    
-  loadTeamRedCards();
 }, []);
   useEffect(() => {
   async function loadEliminatedTeams() {
@@ -598,6 +599,31 @@ function teamStyle(team) {
     ? { color: "#f87171", fontWeight: 800 }
     : {};
 }
+
+async function updateTournamentResult(field, value) {
+  const nextResults = {
+    ...tournamentResults,
+    [field]: value,
+  };
+
+  setTournamentResults(nextResults);
+
+  const res = await fetch("/api/admin/tournament-results", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pin: adminPin,
+      updates: {
+        [field]: value,
+      },
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Turnuva sonucu kaydedilemedi: " + text);
+  }
+}  
   
 async function submitPicks() {
   if (!name.trim() || !pin.trim() || !champion.trim() || !scorer.trim()) return;
