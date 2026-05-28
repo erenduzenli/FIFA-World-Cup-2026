@@ -623,12 +623,24 @@ if (res.ok) {
 async function markPlayed(id) {
   const match = fixtures.find((m) => m.id === id);
   if (!match) return;
+const homeGoals = match.homeGoals === "" ? null : Number(match.homeGoals);
+const awayGoals = match.awayGoals === "" ? null : Number(match.awayGoals);
 
+if (
+  match.stage !== "Grup" &&
+  homeGoals !== null &&
+  awayGoals !== null &&
+  homeGoals === awayGoals &&
+  !match.winner
+) {
+  alert("Berabere biten eleme maçlarında penaltı kazananı seçilmelidir.");
+  return;
+}
 const updates = {
   home: match.home,
   away: match.away,
-  home_goals: match.homeGoals === "" ? null : Number(match.homeGoals),
-  away_goals: match.awayGoals === "" ? null : Number(match.awayGoals),
+  home_goals: homeGoals,
+  away_goals: awayGoals,
   home_red_cards: Number(match.homeRedCards || 0),
   away_red_cards: Number(match.awayRedCards || 0),
   winner: match.winner || null,
@@ -1162,10 +1174,13 @@ gridTemplateColumns: isAdmin
           <>
             <h1 style={css.h1}>Puan Durumu</h1>
             <p style={css.desc}></p>
-            <div style={{ display: "grid", gridTemplateColumns:
-  window.innerWidth < 768
-    ? "repeat(auto-fit,minmax(280px,1fr))"
-    : "repeat(auto-fit,minmax(420px,1fr))", gap: 16 }}>
+  <div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+    gap: 16,
+  }}
+>
               {standings.map(([group, rows]) => (
                 <div key={group} style={css.card}>
                   <div style={{ ...css.row, ...css.head, gridTemplateColumns: "2fr repeat(8,0.55fr)" }}>
@@ -1199,10 +1214,13 @@ gridTemplateColumns: isAdmin
         : "Maç programı"}
     </p>
 
-    <div style={{ display: "grid", gridTemplateColumns:
-  window.innerWidth < 768
-    ? "repeat(auto-fit,minmax(280px,1fr))"
-    : "repeat(auto-fit,minmax(420px,1fr))", gap: 16 }}>
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+    gap: 16,
+  }}
+>
       {groups.map(([group]) => {
         const groupFixtures = fixtures.filter((m) => m.stage === "Grup" && m.group === group);
 
@@ -1277,16 +1295,13 @@ return (
 <div style={{ marginTop: 24 }}>
   <h2 style={{ color: "#facc15" }}>Eleme Turları</h2>
 
-  <div
-    style={{
-      display: "grid",
-      gridTemplateColumns:
-        window.innerWidth < 768
-          ? "repeat(auto-fit,minmax(280px,1fr))"
-          : "repeat(auto-fit,minmax(520px,1fr))",
-      gap: 16,
-    }}
-  >
+<div
+  style={{
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+    gap: 16,
+  }}
+>
     {knockoutStages.map((stage) => {
       const stageFixtures = fixtures.filter((m) => m.stage === stage);
 
