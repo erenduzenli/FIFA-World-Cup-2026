@@ -162,6 +162,21 @@ function calculateStandings(fixtures) {
   ]);
 }
 
+function calculateGroupBonus(picks, standings, active) {
+  if (!active) return 0;
+
+  return picks.reduce((sum, team) => {
+    for (const [, rows] of standings) {
+      const index = rows.findIndex((r) => r.team === team);
+
+      if (index === 0) return sum + 2;
+      if (index === 1) return sum + 1;
+    }
+
+    return sum;
+  }, 0);
+}
+
 function calculateTeamGamePoints(fixtures, manualRedCards = {}) {
   const points = {};
 
@@ -407,17 +422,29 @@ useEffect(() => {
   const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
   const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures, manualRedCards), [fixtures, manualRedCards]);
-  const leaderboardRows = useMemo(() => {
+const leaderboardRows = useMemo(() => {
   return participants
-    .map((p) => ({
-      ...p,
-      points: p.picks.reduce((sum, team) => {
+    .map((p) => {
+      const teamBasePoints = p.picks.reduce((sum, team) => {
         const row = teamPoints.find((x) => x.team === team);
         return sum + (row?.totalPoints || 0);
-      }, 0),
-    }))
+      }, 0);
+
+      const groupBonus = calculateGroupBonus(
+        p.picks,
+        standings,
+        groupBonusActive
+      );
+
+      return {
+        ...p,
+        teamBasePoints,
+        groupBonus,
+        points: teamBasePoints + groupBonus,
+      };
+    })
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
-  }, [participants, teamPoints]);
+}, [participants, teamPoints, standings, groupBonusActive]);
 
   const tabs = [
     ["leaderboard", "🏆", "Lig Tablosu"],
