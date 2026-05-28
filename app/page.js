@@ -971,8 +971,9 @@ onClick={() => {
     </div>
   </div>
 )}
-          <div style={css.card}>
-  <div style={{ overflowX: "auto" }}>
+<div style={css.card}>
+  <div style={{ overflowX: "auto", transform: "rotateX(180deg)" }}>
+    <div style={{ transform: "rotateX(180deg)" }}>
     <div
       style={{
         ...css.row,
@@ -1039,6 +1040,7 @@ gridTemplateColumns: isAdmin
         );
       })
     )}
+    </div>
   </div>
 </div>
           </>
@@ -1047,7 +1049,7 @@ gridTemplateColumns: isAdmin
         {tab === "standings" && (
           <>
             <h1 style={css.h1}>Puan Durumu</h1>
-            <p style={css.desc}>Girilen maç sonuçlarına göre otomatik hesaplanır</p>
+            <p style={css.desc}></p>
             <div style={{ display: "grid", gridTemplateColumns:
   window.innerWidth < 768
     ? "repeat(auto-fit,minmax(280px,1fr))"
@@ -1082,7 +1084,7 @@ gridTemplateColumns: isAdmin
     <p style={css.desc}>
       {isAdmin
         ? "Admin skorları girebilir, değiştirebilir veya sıfırlayabilir."
-        : "Maç programı. Skor düzenleme sadece admin tarafından yapılır."}
+        : "Maç programı."}
     </p>
 
     <div style={{ display: "grid", gridTemplateColumns:
@@ -1094,22 +1096,6 @@ gridTemplateColumns: isAdmin
 
         return (
           <div key={group} style={css.card}>
-            <div style={{ ...css.row, ...css.head, gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 40px 1fr" }}>
-              <div>Grup {group}</div>
-              {isAdmin ? (
-                <>
-                  <div>Gol</div>
-                  <div>Gol</div>
-                  <div>Rakip</div>
-                  <div>İşlem</div>
-                </>
-              ) : (
-                <>
-                  <div></div>
-                  <div></div>
-                </>
-              )}
-            </div>
 
             {groupFixtures.map((m) => (
               <div
@@ -1185,22 +1171,6 @@ gridTemplateColumns: isAdmin
 
       return (
         <div key={stage} style={css.card}>
-          <div
-            style={{
-              ...css.row,
-              ...css.head,
-              gridTemplateColumns: isAdmin
-                ? "70px 1.4fr 70px 70px 1.4fr 220px"
-                : "70px 1.4fr 70px 1.4fr",
-            }}
-          >
-            <div>{stage}</div>
-            <div>Takım</div>
-            <div>Gol</div>
-            {isAdmin && <div>Gol</div>}
-            <div>Rakip</div>
-            {isAdmin && <div>İşlem</div>}
-          </div>
 
           {stageFixtures.map((m, index) => (
             <div
@@ -1321,7 +1291,7 @@ gridTemplateColumns: isAdmin
         {tab === "teams" && (
           <>
             <h1 style={css.h1}>Takım Puanları</h1>
-            <p style={css.desc}>Takım katkısı = maç puanı + attığı gol. Örn. 3-1 galibiyet = 3 + 3 = 6.</p>
+            <p style={css.desc}>Takım puanları, “Kırmızı Kart” ve “En Çok Yiyen” kolonları dışındaki kolonların toplamından, bu iki kolonun toplamı çıkarılarak hesaplanır.</p>
           <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
   <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8 }}>
     Tahmin Bonusları
@@ -1329,7 +1299,7 @@ gridTemplateColumns: isAdmin
 
   <div style={{ color: "#94a3b8", marginBottom: 12 }}>
     Doğru şampiyon tahmini ve doğru gol kralı tahmini ayrı ayrı +10 puan sağlar.
-    Bu puanlar takım puanlarına değil, doğrudan katılımcının toplam puanına eklenir.
+    Bu puanlar takım puanlarına değil, doğrudan katılımcının toplam puanına eklenir ve Lig Tablosuna yansıtılır.
   </div>
 
   <div
@@ -1354,7 +1324,8 @@ gridTemplateColumns: isAdmin
     </div>
   </div>
 </div>
-<div style={{ ...css.card, overflowX: "auto" }}>
+<div style={{ ...css.card, overflowX: "auto", transform: "rotateX(180deg)" }}>
+  <div style={{ transform: "rotateX(180deg)" }}>
 <div
   style={{
     ...css.row,
@@ -1368,17 +1339,18 @@ minWidth: 1500,
   <div>Takım</div>
   <div>Toplam</div>
   <div>Maç Puanı</div>
-  <div>Gol</div>
+  <div>Attığı Gol</div>
   <div>Yediği Gol</div>
-  <div>Grup Bonusu</div>
+  <div>Grup Sıralama Bonusu</div>
   <div>Şampiyon</div>
   <div>İkinci</div>
   <div>Üçüncü</div>
-  <div>En Çok Gol</div>
-  <div>En Çok Yiyen</div>
+  <div>En Çok Gol Atan</div>
+  <div>En Çok Gol Yiyen</div>
   <div>Kırmızı Kart</div>
   {isAdmin && <div>Elendi</div>}
 </div>
+    </div>
 {teamPoints.map((x) => (
   <div
     key={x.team}
@@ -1629,7 +1601,7 @@ minWidth: 1500,
 
         {tab === "join" && (
           <>
-            <h1 style={css.h1}>Katıl</h1><p style={css.desc}>Her torba FIFA erkek milli takım sıralaması kaynağına göre oluşturulacak.</p>
+            <h1 style={css.h1}>Katıl</h1><p style={css.desc}>Her torba FIFA erkek milli takım sıralaması kaynağına göre oluşturulmuştur.</p>
             <div style={{ ...css.card, padding: 20 }}>
             <div style={{ marginBottom: 16 }}>
   <input
