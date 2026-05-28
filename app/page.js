@@ -121,7 +121,13 @@ const css = {
   box: { background: "#0b1a3b", border: "1px solid #1b3059", borderRadius: 14, padding: 14 },
   input: { background: "#0b1a3b", color: "#fff", border: "1px solid #27406f", borderRadius: 10, padding: "9px 10px", width: "100%" },
 };
-
+function normalizeText(value) {
+  return String(value || "")
+    .trim()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLocaleLowerCase("tr-TR");
+}
 function calculateStandings(fixtures) {
   const tableByGroup = Object.fromEntries(
     groups.map(([group, teams]) => [
@@ -494,18 +500,36 @@ useEffect(() => {
 const leaderboardRows = useMemo(() => {
   return participants
     .map((p) => {
-      const points = p.picks.reduce((sum, team) => {
+      const teamPointsTotal = p.picks.reduce((sum, team) => {
         const row = teamPoints.find((x) => x.team === team);
         return sum + (row?.totalPoints || 0);
       }, 0);
 
+      const championPredictionBonus =
+        tournamentResults.champion &&
+        p.champion === tournamentResults.champion
+          ? 10
+          : 0;
+
+      const scorerPredictionBonus =
+        tournamentResults.top_scorer &&
+        normalizeText(p.scorer) === normalizeText(tournamentResults.top_scorer)
+          ? 10
+          : 0;
+
       return {
         ...p,
-        points,
+        teamPointsTotal,
+        championPredictionBonus,
+        scorerPredictionBonus,
+        points:
+          teamPointsTotal +
+          championPredictionBonus +
+          scorerPredictionBonus,
       };
     })
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
-}, [participants, teamPoints]);
+}, [participants, teamPoints, tournamentResults]);
 
   const tabs = [
     ["leaderboard", "🏆", "Lig Tablosu"],
@@ -1303,10 +1327,10 @@ gridTemplateColumns: isAdmin
   style={{
     ...css.row,
     ...css.head,
-    gridTemplateColumns: isAdmin
-      ? "2fr repeat(11,1fr)"
-      : "2fr repeat(10,1fr)",
-    minWidth: 1200,
+gridTemplateColumns: isAdmin
+  ? "2fr repeat(12,1fr)"
+  : "2fr repeat(11,1fr)",
+minWidth: 1500,
   }}
 >
   <div>Takım</div>
@@ -1328,10 +1352,10 @@ gridTemplateColumns: isAdmin
     key={x.team}
     style={{
       ...css.row,
-      gridTemplateColumns: isAdmin
-        ? "2fr repeat(11,1fr)"
-        : "2fr repeat(10,1fr)",
-      minWidth: 1200,
+gridTemplateColumns: isAdmin
+  ? "2fr repeat(12,1fr)"
+  : "2fr repeat(11,1fr)",
+minWidth: 1500,
     }}
   >
 <div style={teamStyle(x.team)}>{x.team}</div>
