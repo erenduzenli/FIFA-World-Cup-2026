@@ -14,8 +14,13 @@ export async function PATCH(request) {
 
   const { data, error } = await supabaseAdmin
     .from("tournament_results")
-    .update(updates)
-    .eq("id", 1)
+    .upsert(
+      {
+        id: 1,
+        ...updates,
+      },
+      { onConflict: "id" }
+    )
     .select()
     .single();
 
