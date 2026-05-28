@@ -1590,13 +1590,14 @@ return (
 
 <div style={css.box}>
   <h2 style={{ color: "#facc15", marginTop: 0 }}>🏆 Turnuva Bonusları</h2>
-  <div>👑 Seçilen takımlardan biri grup lideri olursa: +2</div>
-  <div>🥈 Seçilen takımlardan biri grup ikincisi olursa: +1</div>
   <div>🏆 Seçilen takımlardan biri şampiyon olursa: +8</div>
   <div>🥈 Seçilen takımlardan biri ikinci olursa: +6</div>
   <div>🥉 Seçilen takımlardan biri üçüncü olursa: +4</div>
   <div>📈 Seçilen takımlardan biri turnuvanın en çok gol atan takımı olursa: +3</div>
+  <div>👑 Seçilen takımlardan biri grup lideri olursa: +2</div>
+  <div>🥈 Seçilen takımlardan biri grup ikincisi olursa: +1</div>
   <div>📉 Seçilen takımlardan biri turnuvanın en çok gol yiyen takımı olursa: -3</div>
+
 </div>
 
   <div style={css.box}>
