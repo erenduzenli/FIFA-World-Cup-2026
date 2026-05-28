@@ -320,7 +320,32 @@ useEffect(() => {
 
     setManualRedCards(formatted);
   }
+useEffect(() => {
+  async function loadTournamentResults() {
+    const { data, error } = await supabase
+      .from("tournament_results")
+      .select("*")
+      .eq("id", 1)
+      .single();
 
+    if (error) {
+      console.error("Tournament results could not be loaded:", error);
+      return;
+    }
+
+    setTournamentResults({
+      champion: data.champion || "",
+      runner_up: data.runner_up || "",
+      third_place: data.third_place || "",
+      top_scorer: data.top_scorer || "",
+      highest_scoring_team: data.highest_scoring_team || "",
+      most_conceding_team: data.most_conceding_team || "",
+    });
+  }
+
+  loadTournamentResults();
+}, []);
+    
   loadTeamRedCards();
 }, []);
   useEffect(() => {
@@ -367,6 +392,14 @@ useEffect(() => {
   const [participants, setParticipants] = useState([]);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
   const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(false);
+  const [tournamentResults, setTournamentResults] = useState({
+  champion: "",
+  runner_up: "",
+  third_place: "",
+  top_scorer: "",
+  highest_scoring_team: "",
+  most_conceding_team: "",
+});
   const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
   const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures, manualRedCards), [fixtures, manualRedCards]);
