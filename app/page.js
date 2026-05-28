@@ -388,10 +388,12 @@ useEffect(() => {
 const selectionsSetting = data.find((x) => x.key === "selections_visible");
 const ownPanelSetting = data.find((x) => x.key === "own_pick_panel_visible");
 const groupBonusSetting = data.find((x) => x.key === "group_bonus_active");
+const joinSetting = data.find((x) => x.key === "join_open");
 
 setSelectionsVisible(selectionsSetting?.value === true);
 setOwnPickPanelVisible(ownPanelSetting?.value !== false);
 setGroupBonusActive(groupBonusSetting?.value === true);
+setJoinOpen(joinSetting?.value !== false);
   }
 
   loadSettings();
@@ -487,6 +489,7 @@ useEffect(() => {
   const [selectionsVisible, setSelectionsVisible] = useState(false);
   const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(false);
   const [groupBonusActive, setGroupBonusActive] = useState(false);
+  const [joinOpen, setJoinOpen] = useState(true);
   const [tournamentResults, setTournamentResults] = useState({
   champion: "",
   runner_up: "",
@@ -796,14 +799,37 @@ async function updateTournamentResult(field, value) {
 }  
   
 async function submitPicks() {
+  if (!joinOpen) {
+    alert("Katılım şu anda kapalı.");
+    return;
+  }
+
   if (!name.trim() || !pin.trim() || !champion.trim() || !scorer.trim()) return;
   if (completed !== pots.length) return;
   if (submitted) return;
 
   const picks = pots.map((p) => selection[p.id]);
+  const cleanName = name.trim();
+
+const { data: existingParticipant, error: checkError } = await supabase
+  .from("participants")
+  .select("id")
+  .eq("name", cleanName)
+  .maybeSingle();
+
+if (checkError) {
+  console.error("Name check failed:", checkError);
+  alert("İsim kontrolü sırasında hata oluştu.");
+  return;
+}
+
+if (existingParticipant) {
+  alert("Bu isimle daha önce seçim gönderilmiş. Lütfen farklı bir isim kullan.");
+  return;
+}
 
 const newParticipant = {
-  name: name.trim(),
+  name: cleanName,
   pin: pin.trim(),
   picks,
   champion: champion.trim(),
@@ -816,11 +842,17 @@ const newParticipant = {
     .select()
     .single();
 
-  if (error) {
-    console.error("Participant could not be saved:", error);
+if (error) {
+  console.error("Participant could not be saved:", error);
+
+  if (error.code === "23505") {
+    alert("Bu isimle daha önce seçim gönderilmiş. Lütfen farklı bir isim kullan.");
+  } else {
     alert("Kayıt sırasında hata oluştu.");
-    return;
   }
+
+  return;
+}
 
   setParticipants((prev) => [
     ...prev,
@@ -905,7 +937,27 @@ async function toggleSelectionsVisible() {
 
   setOwnPickPanelVisible(newValue);
 }
+async function toggleJoinOpen() {
+  const newValue = !joinOpen;
 
+  const res = await fetch("/api/admin/settings", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      pin: adminPin,
+      key: "join_open",
+      value: newValue,
+    }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Katılım durumu güncellenemedi: " + text);
+    return;
+  }
+
+  setJoinOpen(newValue);
+}
 async function revealOwnPicks() {
   if (!viewName.trim() || !viewPin.trim()) return;
 
@@ -1139,7 +1191,7 @@ gridTemplateColumns: isAdmin
     <p style={css.desc}>
       {isAdmin
         ? "Admin skorları girebilir, değiştirebilir veya sıfırlayabilir."
-        : "Maç programı."}
+        : "Maç programı"}
     </p>
 
     <div style={{ display: "grid", gridTemplateColumns:
@@ -1389,16 +1441,19 @@ return (
         {tab === "teams" && (
           <>
             <h1 style={css.h1}>Takım Puanları</h1>
-            <p style={css.desc}>Takım puanları, “Kırmızı Kart” ve “En Çok Yiyen” kolonları dışındaki kolonların toplamından, bu iki kolonun toplamı çıkarılarak hesaplanır.</p>
+            <p style={css.desc}>
+  Takım puanları; maç puanı, atılan goller ve turnuva bonusları toplanarak hesaplanır.
+  Kırmızı kartlar ve en çok gol yiyen takım cezası toplam puandan düşülür.
+</p>
           <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
   <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8 }}>
     Tahmin Bonusları
   </div>
 
-  <div style={{ color: "#94a3b8", marginBottom: 12 }}>
-    Doğru şampiyon tahmini ve doğru gol kralı tahmini ayrı ayrı +10 puan sağlar.
-    Bu puanlar takım puanlarına değil, doğrudan katılımcının toplam puanına eklenir ve Lig Tablosuna yansıtılır.
-  </div>
+<div style={{ color: "#94a3b8", marginBottom: 12 }}>
+  Doğru şampiyon tahmini ve doğru gol kralı tahmini, her biri ayrı ayrı 10 puanlık katkı sağlar.
+  Bu puanlar takım puanlarına değil, doğrudan katılımcının Lig Tablosundaki toplam puanına eklenir.
+</div>
 
   <div
     style={{
@@ -1408,17 +1463,17 @@ return (
     }}
   >
     <div style={css.box}>
-      <div style={{ color: "#94a3b8", marginBottom: 6 }}>Şampiyon</div>
-      <div style={{ color: "#facc15", fontWeight: 900 }}>
-        {tournamentResults.champion || "-"}
-      </div>
+      <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 6 }}>Şampiyon</div>
+<div style={{ color: "#e2e8f0", fontWeight: 900 }}>
+  {tournamentResults.champion || "-"}
+</div>
     </div>
 
     <div style={css.box}>
-      <div style={{ color: "#94a3b8", marginBottom: 6 }}>Gol Kralı</div>
-      <div style={{ color: "#facc15", fontWeight: 900 }}>
-        {tournamentResults.top_scorer || "-"}
-      </div>
+      <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 6 }}>Gol Kralı</div>
+<div style={{ color: "#e2e8f0", fontWeight: 900 }}>
+  {tournamentResults.top_scorer || "-"}
+</div>
     </div>
   </div>
 </div>
@@ -1530,24 +1585,25 @@ return (
     <div>⚽ Doğru gol kralı tahmini: +10</div>
   </div>
 
-  <div style={css.box}>
-    <h2 style={{ color: "#facc15", marginTop: 0 }}>📌 Ekstra Kurallar</h2>
-    <div>🚫 Penaltı golleri sayılmaz</div>
-    <div>⚔️ Penaltı galibiyeti: +3</div>
-  </div>
+<div style={css.box}>
+  <h2 style={{ color: "#facc15", marginTop: 0 }}>📌 Ekstra Kurallar</h2>
+  <div>🚫 Penaltılara kalan maçlarda yalnızca normal süre ve uzatma golleri puana yansır.</div>
+  <div>⚔️ Penaltılarda kazanan takım: +3</div>
+  <div>❌ Penaltılarda kaybeden takım: 0</div>
+</div>
 
 <div style={css.box}>
   <h2 style={{ color: "#facc15", marginTop: 0 }}>🧮 Eşitlik Durumu</h2>
   <div style={{ marginBottom: 8 }}>
     Katılımcıların toplam puanı eşitse sıralama aşağıdaki önceliğe göre belirlenir:
   </div>
-  <div>1. Şampiyon tahmininin doğru olması</div>
-  <div>2. Gol kralı tahmininin doğru olması</div>
-  <div>3. Seçilen takımların attığı toplam gol</div>
-  <div>4. Seçilen takımlardan birinin şampiyon olması</div>
-  <div>5. Seçilen takımlardan birinin ikinci olması</div>
-  <div>6. Seçilen takımlardan birinin üçüncü olması</div>
-  <div>7. Daha erken katılım zamanı</div>
+<div>1. Doğru şampiyon tahmini</div>
+<div>2. Doğru gol kralı tahmini</div>
+<div>3. Seçilen takımların attığı toplam gol</div>
+<div>4. Seçilen takımlardan birinin şampiyon olması</div>
+<div>5. Seçilen takımlardan birinin ikinci olması</div>
+<div>6. Seçilen takımlardan birinin üçüncü olması</div>
+<div>7. Daha erken katılım zamanı</div>
 </div>
 
   <div style={{ ...css.box, borderColor: "#facc15" }}>
@@ -1663,13 +1719,15 @@ return (
 )}
   <div style={{ marginTop: 28 }}>
   <h2 style={{ color: "#facc15", marginBottom: 12 }}>Seçimler</h2>
-  <p style={css.desc}>Seçimler admin görünür yapana kadar gizli kalır.</p>
+  <p style={css.desc}></p>
 
   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
-    <div style={css.box}>{participants.length} kişi kayıt oldu</div>
-    <div style={css.box}>{participants.length} kişi seçimini gönderdi</div>
-    <div style={css.box}>
+<div style={css.box}>{participants.length} kişi seçimini gönderdi</div>
+<div style={css.box}>
   {selectionsVisible ? "Seçimler görünür" : "Seçimler gizli"}
+</div>
+<div style={css.box}>
+  {joinOpen ? "Katılım açık" : "Katılım kapalı"}
 </div>
 {isAdmin && (
   <>
@@ -1681,6 +1739,12 @@ return (
         ? "Seçimleri Gizle"
         : "Seçimleri Göster"}
     </button>
+    <button
+  style={{ ...css.btn(joinOpen), marginTop: 14 }}
+  onClick={toggleJoinOpen}
+>
+  {joinOpen ? "Katılımı Kapat" : "Katılımı Aç"}
+</button>
   </>
 )}
   </div>
@@ -1691,6 +1755,11 @@ return (
         {tab === "join" && (
           <>
             <h1 style={css.h1}>Katıl</h1><p style={css.desc}>Her torba FIFA erkek milli takım sıralaması kaynağına göre oluşturulmuştur.</p>
+          {!joinOpen && (
+  <div style={{ ...css.card, padding: 16, marginBottom: 16, color: "#fecaca" }}>
+    Katılım şu anda kapalıdır.
+  </div>
+)}
             <div style={{ ...css.card, padding: 20 }}>
             <div style={{ marginBottom: 16 }}>
   <input
@@ -1748,7 +1817,7 @@ return (
   <button
     style={css.btn(true)}
     onClick={submitPicks}
-    disabled={submitted}
+    disabled={submitted || !joinOpen}
   >
     Gönder
   </button>
