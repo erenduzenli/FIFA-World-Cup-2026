@@ -1298,65 +1298,85 @@ gridTemplateColumns: isAdmin
           <>
             <h1 style={css.h1}>Takım Puanları</h1>
             <p style={css.desc}>Takım katkısı = maç puanı + attığı gol. Örn. 3-1 galibiyet = 3 + 3 = 6.</p>
-<div style={css.card}>
-  <div
-    style={{
-      ...css.row,
-      ...css.head,
-      gridTemplateColumns: isAdmin
-        ? "2fr 1fr 1fr 1fr 1fr 1fr 1fr"
-        : "2fr 1fr 1fr 1fr 1fr 1fr",
-    }}
-  >
-    <div>Takım</div>
-    <div>Toplam Puan</div>
-    <div>Puan</div>
-    <div>Gol</div>
-    <div>Yediği Gol</div>
-    <div>Kırmızı Kart</div>
-    {isAdmin && <div>Elendi</div>}
-  </div>
+<div style={{ ...css.card, overflowX: "auto" }}>
+<div
+  style={{
+    ...css.row,
+    ...css.head,
+    gridTemplateColumns: isAdmin
+      ? "2fr repeat(11,1fr)"
+      : "2fr repeat(10,1fr)",
+    minWidth: 1200,
+  }}
+>
+  <div>Takım</div>
+  <div>Toplam</div>
+  <div>Maç Puanı</div>
+  <div>Gol</div>
+  <div>Yediği Gol</div>
+  <div>Grup Bonusu</div>
+  <div>Şampiyon</div>
+  <div>İkinci</div>
+  <div>Üçüncü</div>
+  <div>En Çok Gol</div>
+  <div>En Çok Yiyen</div>
+  <div>Kırmızı Kart</div>
+  {isAdmin && <div>Elendi</div>}
+</div>
 {teamPoints.map((x) => (
   <div
     key={x.team}
     style={{
       ...css.row,
       gridTemplateColumns: isAdmin
-        ? "2fr 1fr 1fr 1fr 1fr 1fr 1fr"
-        : "2fr 1fr 1fr 1fr 1fr 1fr",
+        ? "2fr repeat(11,1fr)"
+        : "2fr repeat(10,1fr)",
+      minWidth: 1200,
     }}
   >
-    <div style={teamStyle(x.team)}>{x.team}</div>
+<div style={teamStyle(x.team)}>{x.team}</div>
 
-    <div style={{ color: "#facc15", fontWeight: 800 }}>
-      {x.totalPoints}
-    </div>
+<div style={{ color: "#facc15", fontWeight: 800 }}>
+  {x.totalPoints}
+</div>
 
-    <div>{x.matchPoints}</div>
+<div>{x.matchPoints}</div>
 
-    <div>{x.goals}</div>
+<div>{x.goals}</div>
 
-    <div>{x.conceded}</div>
+<div>{x.conceded}</div>
 
-    {isAdmin ? (
-      <input
-        style={css.input}
-        value={x.redCards}
-        onChange={(e) =>
-          updateManualRedCards(x.team, e.target.value)
-        }
-      />
-    ) : (
-      <div>{x.redCards}</div>
-    )}
+<div>{x.groupBonus}</div>
 
-    {isAdmin && (
-      <input
-        type="checkbox"
-        checked={!!eliminatedTeams[x.team]}
-        onChange={() => toggleEliminatedTeam(x.team)}
-      />
-    )}
+<div>{x.championBonus}</div>
+
+<div>{x.runnerUpBonus}</div>
+
+<div>{x.thirdPlaceBonus}</div>
+
+<div>{x.highestScoringBonus}</div>
+
+<div>{x.mostConcedingPenalty}</div>
+
+{isAdmin ? (
+  <input
+    style={css.input}
+    value={x.redCards}
+    onChange={(e) =>
+      updateManualRedCards(x.team, e.target.value)
+    }
+  />
+) : (
+  <div>{x.redCards}</div>
+)}
+
+{isAdmin && (
+  <input
+    type="checkbox"
+    checked={!!eliminatedTeams[x.team]}
+    onChange={() => toggleEliminatedTeam(x.team)}
+  />
+)}
   </div>
 ))}
             </div>
