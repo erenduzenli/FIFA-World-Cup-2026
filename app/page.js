@@ -1177,7 +1177,7 @@ gridTemplateColumns: isAdmin
   <div
   style={{
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+    gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,420px),1fr))",
     gap: 16,
   }}
 >
@@ -1217,7 +1217,7 @@ gridTemplateColumns: isAdmin
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+    gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,420px),1fr))",
     gap: 16,
   }}
 >
@@ -1298,7 +1298,7 @@ return (
 <div
   style={{
     display: "grid",
-    gridTemplateColumns: "repeat(auto-fit,minmax(280px,1fr))",
+    gridTemplateColumns: "repeat(auto-fit,minmax(min(100%,520px),1fr))",
     gap: 16,
   }}
 >
