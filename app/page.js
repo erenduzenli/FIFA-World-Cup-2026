@@ -1308,7 +1308,88 @@ onClick={() => {
     <div style={{ fontSize: 16, fontWeight: 800 }}>🥉 3. sıra: toplam ödülün %10’u</div>
   </div>
 </div>
-          <div style={{ marginTop: 28 }}>
+  {isAdmin && (
+  <div style={{ ...css.card, padding: 16, marginTop: 28 }}>
+    <h2 style={{ color: "#facc15", marginTop: 0 }}>
+      Turnuva Sonuçları
+    </h2>
+
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+        gap: 12,
+      }}
+    >
+      <select
+        style={css.input}
+        value={tournamentResults.champion}
+        onChange={(e) => updateTournamentResult("champion", e.target.value)}
+      >
+        <option value="">Şampiyon</option>
+        {allTeams.map((team) => (
+          <option key={team} value={team}>{team}</option>
+        ))}
+      </select>
+
+      <select
+        style={css.input}
+        value={tournamentResults.runner_up}
+        onChange={(e) => updateTournamentResult("runner_up", e.target.value)}
+      >
+        <option value="">İkinci</option>
+        {allTeams.map((team) => (
+          <option key={team} value={team}>{team}</option>
+        ))}
+      </select>
+
+      <select
+        style={css.input}
+        value={tournamentResults.third_place}
+        onChange={(e) => updateTournamentResult("third_place", e.target.value)}
+      >
+        <option value="">Üçüncü</option>
+        {allTeams.map((team) => (
+          <option key={team} value={team}>{team}</option>
+        ))}
+      </select>
+
+      <input
+        style={css.input}
+        placeholder="Gol Kralı"
+        value={tournamentResults.top_scorer}
+        onChange={(e) => updateTournamentResult("top_scorer", e.target.value)}
+      />
+
+      <select
+        style={css.input}
+        value={tournamentResults.highest_scoring_team}
+        onChange={(e) =>
+          updateTournamentResult("highest_scoring_team", e.target.value)
+        }
+      >
+        <option value="">En Çok Gol Atan Takım</option>
+        {allTeams.map((team) => (
+          <option key={team} value={team}>{team}</option>
+        ))}
+      </select>
+
+      <select
+        style={css.input}
+        value={tournamentResults.most_conceding_team}
+        onChange={(e) =>
+          updateTournamentResult("most_conceding_team", e.target.value)
+        }
+      >
+        <option value="">En Çok Gol Yiyen Takım</option>
+        {allTeams.map((team) => (
+          <option key={team} value={team}>{team}</option>
+        ))}
+      </select>
+    </div>
+  </div>
+)}
+  <div style={{ marginTop: 28 }}>
   <h2 style={{ color: "#facc15", marginBottom: 12 }}>Seçimler</h2>
   <p style={css.desc}>Seçimler admin görünür yapana kadar gizli kalır.</p>
 
