@@ -177,7 +177,13 @@ function calculateGroupBonus(picks, standings, active) {
   }, 0);
 }
 
-function calculateTeamGamePoints(fixtures, manualRedCards = {}) {
+function calculateTeamGamePoints(
+  fixtures,
+  manualRedCards = {},
+  standings = [],
+  groupBonusActive = false,
+  tournamentResults = {}
+) {
   const points = {};
 
   groups.forEach(([, teams]) => {
@@ -189,6 +195,12 @@ function calculateTeamGamePoints(fixtures, manualRedCards = {}) {
         goals: 0,
         redCards: 0,
         conceded: 0,
+        groupBonus: 0,
+        championBonus: 0,
+        runnerUpBonus: 0,
+        thirdPlaceBonus: 0,
+        highestScoringBonus: 0,
+        mostConcedingPenalty: 0,
       };
     });
   });
@@ -203,6 +215,7 @@ function calculateTeamGamePoints(fixtures, manualRedCards = {}) {
     const arc = Number(m.awayRedCards || 0);
 
     if (!Number.isFinite(hg) || !Number.isFinite(ag)) return;
+    if (!points[m.home] || !points[m.away]) return;
 
     points[m.home].goals += hg;
     points[m.away].goals += ag;
@@ -221,9 +234,55 @@ function calculateTeamGamePoints(fixtures, manualRedCards = {}) {
     }
   });
 
+  if (groupBonusActive) {
+    standings.forEach(([, rows]) => {
+      const first = rows[0]?.team;
+      const second = rows[1]?.team;
+
+      if (first && points[first]) points[first].groupBonus = 2;
+      if (second && points[second]) points[second].groupBonus = 1;
+    });
+  }
+
+  if (tournamentResults.champion && points[tournamentResults.champion]) {
+    points[tournamentResults.champion].championBonus = 8;
+  }
+
+  if (tournamentResults.runner_up && points[tournamentResults.runner_up]) {
+    points[tournamentResults.runner_up].runnerUpBonus = 6;
+  }
+
+  if (tournamentResults.third_place && points[tournamentResults.third_place]) {
+    points[tournamentResults.third_place].thirdPlaceBonus = 4;
+  }
+
+  if (
+    tournamentResults.highest_scoring_team &&
+    points[tournamentResults.highest_scoring_team]
+  ) {
+    points[tournamentResults.highest_scoring_team].highestScoringBonus = 3;
+  }
+
+  if (
+    tournamentResults.most_conceding_team &&
+    points[tournamentResults.most_conceding_team]
+  ) {
+    points[tournamentResults.most_conceding_team].mostConcedingPenalty = -3;
+  }
+
   Object.values(points).forEach((t) => {
     t.redCards = Number(manualRedCards[t.team] || 0);
-    t.totalPoints = t.matchPoints + t.goals - t.redCards;
+
+    t.totalPoints =
+      t.matchPoints +
+      t.goals -
+      t.redCards +
+      t.groupBonus +
+      t.championBonus +
+      t.runnerUpBonus +
+      t.thirdPlaceBonus +
+      t.highestScoringBonus +
+      t.mostConcedingPenalty;
   });
 
   return Object.values(points).sort(
@@ -421,30 +480,32 @@ useEffect(() => {
 });
   const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
-  const teamPoints = useMemo(() => calculateTeamGamePoints(fixtures, manualRedCards), [fixtures, manualRedCards]);
+  const teamPoints = useMemo(
+  () =>
+    calculateTeamGamePoints(
+      fixtures,
+      manualRedCards,
+      standings,
+      groupBonusActive,
+      tournamentResults
+    ),
+  [fixtures, manualRedCards, standings, groupBonusActive, tournamentResults]
+);
 const leaderboardRows = useMemo(() => {
   return participants
     .map((p) => {
-      const teamBasePoints = p.picks.reduce((sum, team) => {
+      const points = p.picks.reduce((sum, team) => {
         const row = teamPoints.find((x) => x.team === team);
         return sum + (row?.totalPoints || 0);
       }, 0);
 
-      const groupBonus = calculateGroupBonus(
-        p.picks,
-        standings,
-        groupBonusActive
-      );
-
       return {
         ...p,
-        teamBasePoints,
-        groupBonus,
-        points: teamBasePoints + groupBonus,
+        points,
       };
     })
     .sort((a, b) => b.points - a.points || a.name.localeCompare(b.name));
-}, [participants, teamPoints, standings, groupBonusActive]);
+}, [participants, teamPoints]);
 
   const tabs = [
     ["leaderboard", "🏆", "Lig Tablosu"],
@@ -893,15 +954,15 @@ onClick={() => {
         ...css.row,
         ...css.head,
 gridTemplateColumns: isAdmin
-  ? "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
-  : "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
+  ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
+  : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
         minWidth: 1500,
       }}
     >
       <div>#</div>
       <div>Ad Soyad</div>
       <div>Puan</div>
-<div>Grup Bonusu</div>
+
       {pots.map((p) => (
         <div key={p.id}>Grup {p.id}</div>
       ))}
@@ -926,8 +987,8 @@ gridTemplateColumns: isAdmin
             style={{
               ...css.row,
 gridTemplateColumns: isAdmin
-  ? "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
-  : "60px 1.2fr 0.8fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
+  ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
+  : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
               minWidth: 1500,
             }}
           >
@@ -937,9 +998,7 @@ gridTemplateColumns: isAdmin
             <div style={{ color: "#facc15", fontWeight: 900 }}>
               {p.points}
             </div>
-<div style={{ color: "#86efac", fontWeight: 800 }}>
-  {p.groupBonus}
-</div>
+
 {p.picks.map((pick, i) => (
   <div key={i} style={visible ? teamStyle(pick) : {}}>
     {visible ? pick : "****"}
