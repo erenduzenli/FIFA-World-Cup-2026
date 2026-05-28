@@ -13,11 +13,10 @@ export async function PATCH(request) {
   }
 
   const { data, error } = await supabaseAdmin
-    .from("settings")
-    .update({ value })
-    .eq("key", key)
-    .select()
-    .single();
+  .from("settings")
+  .upsert({ key, value }, { onConflict: "key" })
+  .select()
+  .single();
 
   if (error) {
     return Response.json({ error: error.message }, { status: 500 });
