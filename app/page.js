@@ -1322,6 +1322,38 @@ gridTemplateColumns: isAdmin
           <>
             <h1 style={css.h1}>Takım Puanları</h1>
             <p style={css.desc}>Takım katkısı = maç puanı + attığı gol. Örn. 3-1 galibiyet = 3 + 3 = 6.</p>
+          <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
+  <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8 }}>
+    Tahmin Bonusları
+  </div>
+
+  <div style={{ color: "#94a3b8", marginBottom: 12 }}>
+    Doğru şampiyon tahmini ve doğru gol kralı tahmini ayrı ayrı +10 puan sağlar.
+    Bu puanlar takım puanlarına değil, doğrudan katılımcının toplam puanına eklenir.
+  </div>
+
+  <div
+    style={{
+      display: "grid",
+      gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))",
+      gap: 12,
+    }}
+  >
+    <div style={css.box}>
+      <div style={{ color: "#94a3b8", marginBottom: 6 }}>Şampiyon</div>
+      <div style={{ color: "#facc15", fontWeight: 900 }}>
+        {tournamentResults.champion || "-"}
+      </div>
+    </div>
+
+    <div style={css.box}>
+      <div style={{ color: "#94a3b8", marginBottom: 6 }}>Gol Kralı</div>
+      <div style={{ color: "#facc15", fontWeight: 900 }}>
+        {tournamentResults.top_scorer || "-"}
+      </div>
+    </div>
+  </div>
+</div>
 <div style={{ ...css.card, overflowX: "auto" }}>
 <div
   style={{
