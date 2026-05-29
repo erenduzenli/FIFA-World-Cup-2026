@@ -1106,12 +1106,6 @@ onClick={() => {
     Lig Tablosunu İndir
   </button>
 </div>
-  </div>
-
-<button style={css.btn(true)} onClick={downloadLeaderboardCsv}>
-  Lig Tablosunu İndir
-</button>
-</div>
 {isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
     <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
