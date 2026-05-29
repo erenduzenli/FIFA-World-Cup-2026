@@ -772,8 +772,11 @@ async function updateTournamentResult(field, value) {
   if (!res.ok) {
     const text = await res.text();
     alert("Turnuva sonucu kaydedilemedi: " + text);
+    return;
   }
-}  
+
+  await loadLeaderboard();
+}
   
 async function submitPicks() {
   if (!joinOpen) {
