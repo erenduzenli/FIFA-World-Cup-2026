@@ -995,50 +995,6 @@ async function revealOwnPicks() {
   const data = await res.json();
   setOwnParticipantId(data.id);
 }
-function downloadLeaderboardCsv() {
-  const headers = [
-    "Sıra",
-    "Ad Soyad",
-    "Puan",
-    ...pots.map((p) => `Grup ${p.id}`),
-    "Şampiyon",
-    "Gol Kralı",
-  ];
-
-  const rows = leaderboardRows.map((p, index) => {
-    const visible = canSeeParticipant(p);
-
-    return [
-      index + 1,
-      p.name,
-      p.points,
-      ...p.picks.map((pick) => (visible ? pick : "****")),
-      visible ? p.champion : "****",
-      visible ? p.scorer : "****",
-    ];
-  });
-
-  const csv = [headers, ...rows]
-    .map((row) =>
-      row
-        .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
-        .join(";")
-    )
-    .join("\n");
-
-  const blob = new Blob(["\ufeff" + csv], {
-    type: "text/csv;charset=utf-8;",
-  });
-
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.href = url;
-  link.download = "lig-tablosu.csv";
-  link.click();
-
-  URL.revokeObjectURL(url);
-}
 
 function downloadLeaderboardCsv() {
   const headers = [
@@ -1142,16 +1098,6 @@ onClick={() => {
   }}
 >
   <div>
-<div
-  style={{
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    gap: 12,
-    flexWrap: "wrap",
-  }}
->
-  <div>
     <h1 style={css.h1}>Lig Tablosu</h1>
     <p style={css.desc}>Anlık puan sıralaması</p>
   </div>
@@ -1217,11 +1163,8 @@ onClick={() => {
   </div>
 )}
 <div style={css.card}>
-<div
-  className="print-scroll"
-  style={{ overflowX: "auto", transform: "rotateX(180deg)" }}
->
-  <div className="print-inner" style={{ transform: "rotateX(180deg)" }}>
+<div style={{ overflowX: "auto", transform: "rotateX(180deg)" }}>
+  <div style={{ transform: "rotateX(180deg)" }}>
     <div
       style={{
         ...css.row,
