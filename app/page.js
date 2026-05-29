@@ -1002,7 +1002,28 @@ function canSeeParticipant(p) {
   
   return (
     <div style={css.page}>
-      <header style={css.header}>
+        <style>{`
+      @media print {
+        .no-print {
+          display: none !important;
+        }
+
+        .print-scroll {
+          overflow: visible !important;
+          transform: none !important;
+        }
+
+        .print-inner {
+          transform: none !important;
+        }
+
+        * {
+          -webkit-print-color-adjust: exact;
+          print-color-adjust: exact;
+        }
+      }
+    `}</style>
+      <header className="no-print" style={css.header}>
         <div style={css.wrap}>
           <div style={css.top}>
             <div style={css.brand}>
@@ -1030,7 +1051,7 @@ onClick={() => {
         </div>
       </header>
 
-      <nav style={css.nav}>
+      <nav className="no-print" style={css.nav}>
         <div style={css.wrap}>
           <div style={css.navInner}>
             {tabs.map(([key, icon, label]) => (
@@ -1043,8 +1064,28 @@ onClick={() => {
       <main style={{ ...css.wrap, ...css.content }}>
         {tab === "leaderboard" && (
           <>
-            <h1 style={css.h1}>Lig Tablosu</h1>
-            <p style={css.desc}>Anlık puan sıralaması</p>
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
+  }}
+>
+  <div>
+    <h1 style={css.h1}>Lig Tablosu</h1>
+    <p style={css.desc}>Anlık puan sıralaması</p>
+  </div>
+
+  <button
+    className="no-print"
+    style={css.btn(true)}
+    onClick={() => window.print()}
+  >
+    PDF / Yazdır
+  </button>
+</div>
 {isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
     <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 10 }}>
@@ -1096,8 +1137,11 @@ onClick={() => {
   </div>
 )}
 <div style={css.card}>
-  <div style={{ overflowX: "auto", transform: "rotateX(180deg)" }}>
-    <div style={{ transform: "rotateX(180deg)" }}>
+<div
+  className="print-scroll"
+  style={{ overflowX: "auto", transform: "rotateX(180deg)" }}
+>
+  <div className="print-inner" style={{ transform: "rotateX(180deg)" }}>
     <div
       style={{
         ...css.row,
