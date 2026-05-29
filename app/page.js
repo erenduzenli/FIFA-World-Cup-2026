@@ -1095,6 +1095,7 @@ onClick={() => {
     alignItems: "center",
     gap: 12,
     flexWrap: "wrap",
+    marginBottom: 16,
   }}
 >
   <div>
