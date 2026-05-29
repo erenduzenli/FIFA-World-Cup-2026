@@ -565,8 +565,8 @@ if (res.ok) {
 async function markPlayed(id) {
   const match = fixtures.find((m) => m.id === id);
   if (!match) return;
-const homeGoals = match.homeGoals === "" ? null : Number(match.homeGoals);
-const awayGoals = match.awayGoals === "" ? null : Number(match.awayGoals);
+const homeGoals = match.homeGoals === "" ? 0 : Number(match.homeGoals);
+const awayGoals = match.awayGoals === "" ? 0 : Number(match.awayGoals);
 
 if (
   match.stage !== "Grup" &&
