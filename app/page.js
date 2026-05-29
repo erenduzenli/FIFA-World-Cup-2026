@@ -995,6 +995,50 @@ async function revealOwnPicks() {
   const data = await res.json();
   setOwnParticipantId(data.id);
 }
+function downloadLeaderboardCsv() {
+  const headers = [
+    "Sıra",
+    "Ad Soyad",
+    "Puan",
+    ...pots.map((p) => `Grup ${p.id}`),
+    "Şampiyon",
+    "Gol Kralı",
+  ];
+
+  const rows = leaderboardRows.map((p, index) => {
+    const visible = canSeeParticipant(p);
+
+    return [
+      index + 1,
+      p.name,
+      p.points,
+      ...p.picks.map((pick) => (visible ? pick : "****")),
+      visible ? p.champion : "****",
+      visible ? p.scorer : "****",
+    ];
+  });
+
+  const csv = [headers, ...rows]
+    .map((row) =>
+      row
+        .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
+        .join(";")
+    )
+    .join("\n");
+
+  const blob = new Blob(["\ufeff" + csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "lig-tablosu.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
 
 function downloadLeaderboardCsv() {
   const headers = [
@@ -1047,28 +1091,7 @@ function canSeeParticipant(p) {
   
   return (
     <div style={css.page}>
-        <style>{`
-      @media print {
-        .no-print {
-          display: none !important;
-        }
-
-        .print-scroll {
-          overflow: visible !important;
-          transform: none !important;
-        }
-
-        .print-inner {
-          transform: none !important;
-        }
-
-        * {
-          -webkit-print-color-adjust: exact;
-          print-color-adjust: exact;
-        }
-      }
-    `}</style>
-      <header className="no-print" style={css.header}>
+      <header style={css.header}>
         <div style={css.wrap}>
           <div style={css.top}>
             <div style={css.brand}>
@@ -1096,7 +1119,7 @@ onClick={() => {
         </div>
       </header>
 
-      <nav className="no-print" style={css.nav}>
+      <nav style={css.nav}>
         <div style={css.wrap}>
           <div style={css.navInner}>
             {tabs.map(([key, icon, label]) => (
@@ -1139,13 +1162,9 @@ onClick={() => {
 </div>
   </div>
 
-  <button
-    className="no-print"
-    style={css.btn(true)}
-    onClick={() => window.print()}
-  >
-    PDF / Yazdır
-  </button>
+<button style={css.btn(true)} onClick={downloadLeaderboardCsv}>
+  Lig Tablosunu İndir
+</button>
 </div>
 {isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
