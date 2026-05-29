@@ -578,6 +578,16 @@ if (
   alert("Berabere biten eleme maçlarında penaltı kazananı seçilmelidir.");
   return;
 }
+if (
+  match.stage !== "Grup" &&
+  homeGoals !== null &&
+  awayGoals !== null &&
+  homeGoals !== awayGoals &&
+  match.winType === "penalties"
+) {
+  alert("Penaltı seçeneği yalnızca berabere biten eleme maçlarında kullanılabilir.");
+  return;
+}
 const updates = {
   home: match.home,
   away: match.away,
