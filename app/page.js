@@ -604,11 +604,19 @@ if (!res.ok) {
   return;
 }
 
-  setFixtures((prev) =>
-    prev.map((m) =>
-      m.id === id ? { ...m, status: "Tamamlandı", locked: true } : m
-    )
-  );
+setFixtures((prev) =>
+  prev.map((m) =>
+    m.id === id
+      ? {
+          ...m,
+          homeGoals: String(homeGoals),
+          awayGoals: String(awayGoals),
+          status: "Tamamlandı",
+          locked: true,
+        }
+      : m
+  )
+);
 }
 
 async function editFixture(id) {
