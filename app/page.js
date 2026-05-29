@@ -352,32 +352,7 @@ export default function Page() {
 
   loadFixtures();
 }, []);
-  useEffect(() => {
-  async function loadParticipants() {
-    const { data, error } = await supabase
-      .from("participants")
-      .select("id, name, picks, champion, scorer, submitted_at")
-      .order("submitted_at", { ascending: true });
 
-    if (error) {
-      console.error("Participants could not be loaded:", error);
-      return;
-    }
-
-    const formatted = data.map((p) => ({
-      id: p.id,
-      name: p.name,
-      picks: p.picks,
-      champion: p.champion,
-      scorer: p.scorer,
-      submittedAt: p.submitted_at,
-    }));
-
-    setParticipants(formatted);
-  }
-
-  loadParticipants();
-}, []);
 
 useEffect(() => {
   async function loadSettings() {
@@ -491,6 +466,9 @@ useEffect(() => {
   const [manualRedCards, setManualRedCards] = useState({});
   const [eliminatedTeams, setEliminatedTeams] = useState({});
   const [participants, setParticipants] = useState([]);
+  const [leaderboardRows, setLeaderboardRows] = useState([]);
+const [participantCount, setParticipantCount] = useState(0);
+const [viewerCredentials, setViewerCredentials] = useState(null);
   const [selectionsVisible, setSelectionsVisible] = useState(false);
   const [ownPickPanelVisible, setOwnPickPanelVisible] = useState(false);
   const [groupBonusActive, setGroupBonusActive] = useState(false);
@@ -516,77 +494,41 @@ useEffect(() => {
     ),
   [fixtures, manualRedCards, standings, groupBonusActive, tournamentResults]
 );
-const leaderboardRows = useMemo(() => {
-  return participants
-    .map((p) => {
-      const pickedRows = p.picks.map((team) =>
-        teamPoints.find((x) => x.team === team)
-      );
+async function loadLeaderboard() {
+  const res = await fetch("/api/leaderboard", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      adminPin: isAdmin ? adminPin : "",
+      viewerName: viewerCredentials?.name || "",
+      viewerPin: viewerCredentials?.pin || "",
+    }),
+  });
 
-      const teamPointsTotal = pickedRows.reduce(
-        (sum, row) => sum + (row?.totalPoints || 0),
-        0
-      );
+  if (!res.ok) {
+    const text = await res.text();
+    console.error("Leaderboard could not be loaded:", text);
+    return;
+  }
 
-      const selectedGoals = pickedRows.reduce(
-        (sum, row) => sum + (row?.goals || 0),
-        0
-      );
+  const data = await res.json();
 
-      const championPredictionCorrect =
-        tournamentResults.champion &&
-        p.champion === tournamentResults.champion;
+  setLeaderboardRows(data.rows || []);
+  setParticipantCount(data.participantCount || 0);
+}
 
-      const scorerPredictionCorrect =
-        tournamentResults.top_scorer &&
-        normalizeText(p.scorer) === normalizeText(tournamentResults.top_scorer);
-
-      const hasChampionTeam =
-        tournamentResults.champion &&
-        p.picks.includes(tournamentResults.champion);
-
-      const hasRunnerUpTeam =
-        tournamentResults.runner_up &&
-        p.picks.includes(tournamentResults.runner_up);
-
-      const hasThirdPlaceTeam =
-        tournamentResults.third_place &&
-        p.picks.includes(tournamentResults.third_place);
-
-      const championPredictionBonus = championPredictionCorrect ? 10 : 0;
-      const scorerPredictionBonus = scorerPredictionCorrect ? 10 : 0;
-
-      return {
-        ...p,
-        teamPointsTotal,
-        championPredictionBonus,
-        scorerPredictionBonus,
-        selectedGoals,
-        championPredictionCorrect,
-        scorerPredictionCorrect,
-        hasChampionTeam,
-        hasRunnerUpTeam,
-        hasThirdPlaceTeam,
-        points:
-          teamPointsTotal +
-          championPredictionBonus +
-          scorerPredictionBonus,
-      };
-    })
-    .sort(
-      (a, b) =>
-        b.points - a.points ||
-        Number(b.championPredictionCorrect) -
-          Number(a.championPredictionCorrect) ||
-        Number(b.scorerPredictionCorrect) -
-          Number(a.scorerPredictionCorrect) ||
-        b.selectedGoals - a.selectedGoals ||
-        Number(b.hasChampionTeam) - Number(a.hasChampionTeam) ||
-        Number(b.hasRunnerUpTeam) - Number(a.hasRunnerUpTeam) ||
-        Number(b.hasThirdPlaceTeam) - Number(a.hasThirdPlaceTeam) ||
-        new Date(a.submittedAt) - new Date(b.submittedAt)
-    );
-}, [participants, teamPoints, tournamentResults]);
+useEffect(() => {
+  loadLeaderboard();
+}, [
+  isAdmin,
+  adminPin,
+  viewerCredentials,
+  fixtures,
+  tournamentResults,
+  manualRedCards,
+  groupBonusActive,
+  selectionsVisible,
+]);
 
   const tabs = [
     ["leaderboard", "🏆", "Lig Tablosu"],
@@ -826,63 +768,34 @@ async function submitPicks() {
   if (submitted) return;
 
   const picks = pots.map((p) => selection[p.id]);
-  const cleanName = name.trim();
 
-const { data: existingParticipant, error: checkError } = await supabase
-  .from("participants")
-  .select("id")
-  .eq("name", cleanName)
-  .maybeSingle();
+  const res = await fetch("/api/participants", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      name: name.trim(),
+      pin: pin.trim(),
+      picks,
+      champion: champion.trim(),
+      scorer: scorer.trim(),
+    }),
+  });
 
-if (checkError) {
-  console.error("Name check failed:", checkError);
-  alert("İsim kontrolü sırasında hata oluştu.");
-  return;
-}
+  if (!res.ok) {
+    if (res.status === 409) {
+      alert("Bu isimle daha önce seçim gönderilmiş. Lütfen farklı bir isim kullan.");
+    } else if (res.status === 403) {
+      alert("Katılım şu anda kapalı.");
+    } else {
+      const text = await res.text();
+      console.error("Participant could not be saved:", text);
+      alert("Kayıt sırasında hata oluştu.");
+    }
 
-if (existingParticipant) {
-  alert("Bu isimle daha önce seçim gönderilmiş. Lütfen farklı bir isim kullan.");
-  return;
-}
-
-const newParticipant = {
-  name: cleanName,
-  pin: pin.trim(),
-  picks,
-  champion: champion.trim(),
-  scorer: scorer.trim(),
-};
-
-  const { data, error } = await supabase
-    .from("participants")
-    .insert(newParticipant)
-    .select()
-    .single();
-
-if (error) {
-  console.error("Participant could not be saved:", error);
-
-  if (error.code === "23505") {
-    alert("Bu isimle daha önce seçim gönderilmiş. Lütfen farklı bir isim kullan.");
-  } else {
-    alert("Kayıt sırasında hata oluştu.");
+    return;
   }
 
-  return;
-}
-
-  setParticipants((prev) => [
-    ...prev,
-    {
-      id: data.id,
-      name: data.name,
-      picks: data.picks,
-      champion: data.champion,
-      scorer: data.scorer,
-      submittedAt: data.submitted_at,
-    },
-  ]);
-
+  await loadLeaderboard();
   setSubmitted(true);
 }
 
@@ -992,8 +905,13 @@ async function revealOwnPicks() {
     return;
   }
 
-  const data = await res.json();
-  setOwnParticipantId(data.id);
+const data = await res.json();
+
+setOwnParticipantId(data.id);
+setViewerCredentials({
+  name: viewName.trim(),
+  pin: viewPin.trim(),
+});
 }
 
 function downloadLeaderboardCsv() {
@@ -1042,7 +960,7 @@ function downloadLeaderboardCsv() {
 }
   
 function canSeeParticipant(p) {
-  return isAdmin || selectionsVisible || p.id === ownParticipantId;
+  return !!p.visible;
 }
   
   return (
@@ -1104,7 +1022,7 @@ onClick={() => {
   </div>
 
   <button style={css.btn(true)} onClick={downloadLeaderboardCsv}>
-    Lig Tablosunu İndir
+    Lig Tablosu'nu İndir
   </button>
 </div>
 {isAdmin && (
@@ -1805,7 +1723,7 @@ return (
   <p style={css.desc}></p>
 
   <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit,minmax(220px,1fr))", gap: 14 }}>
-<div style={css.box}>{participants.length} kişi seçimini gönderdi</div>
+<div style={css.box}>{participantCount} kişi seçimini gönderdi</div>
 <div style={css.box}>
   {selectionsVisible ? "Seçimler görünür" : "Seçimler gizli"}
 </div>
