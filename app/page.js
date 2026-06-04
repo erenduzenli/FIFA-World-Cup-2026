@@ -1373,10 +1373,12 @@ return (
                   ))}
                 </select>
               ) : (
-                  <div style={teamStyle(m.home)}>
-                   {m.home}
-                   {m.winType === "penalties" && m.winner === m.home ? " (p)" : ""}
-                </div>
+<div style={teamStyle(m.home)}>
+  {m.home}
+  {m.winType === "penalties" && m.winner === m.home && (
+    <span style={{ color: "#facc15", fontWeight: 900 }}> (p)</span>
+  )}
+</div>
               )}
 
               {isAdmin ? (
@@ -1439,10 +1441,12 @@ return (
                   ))}
                 </select>
               ) : (
-                  <div style={{ textAlign: "right", ...teamStyle(m.away) }}>
-                   {m.away}
-                   {m.winType === "penalties" && m.winner === m.away ? " (p)" : ""}
-                  </div>
+<div style={{ textAlign: "right", ...teamStyle(m.away) }}>
+  {m.away}
+  {m.winType === "penalties" && m.winner === m.away && (
+    <span style={{ color: "#facc15", fontWeight: 900 }}> (p)</span>
+  )}
+</div>
               )}
 
 {isAdmin && (
