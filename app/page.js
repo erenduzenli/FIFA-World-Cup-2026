@@ -805,6 +805,15 @@ async function updateTournamentResult(field, value) {
 
   await loadLeaderboard();
 }
+  function toggleTournamentTeam(field, team) {
+  const current = parseTeamList(tournamentResults[field]);
+
+  const next = current.includes(team)
+    ? current.filter((x) => x !== team)
+    : [...current, team];
+
+  updateTournamentResult(field, next.join(", "));
+}
   
 async function submitPicks() {
   if (!joinOpen) {
@@ -1757,43 +1766,43 @@ return (
         onChange={(e) => updateTournamentResult("top_scorer", e.target.value)}
       />
 
-<select
-  multiple
-  size={5}
-  style={css.input}
-  value={parseTeamList(tournamentResults.highest_scoring_team)}
-  onChange={(e) =>
-    updateTournamentResult(
-      "highest_scoring_team",
-      Array.from(e.target.selectedOptions)
-        .map((option) => option.value)
-        .join(", ")
-    )
-  }
->
-  {sortedTeams.map((team) => (
-    <option key={team} value={team}>{team}</option>
-  ))}
-</select>
+<div style={css.box}>
+  <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8 }}>
+    En Çok Gol Atan Takım
+  </div>
 
-<select
-  multiple
-  size={5}
-  style={css.input}
-  value={parseTeamList(tournamentResults.most_conceding_team)}
-  onChange={(e) =>
-    updateTournamentResult(
-      "most_conceding_team",
-      Array.from(e.target.selectedOptions)
-        .map((option) => option.value)
-        .join(", ")
-    )
-  }
->
-  {sortedTeams.map((team) => (
-    <option key={team} value={team}>{team}</option>
-  ))}
-</select>
+  <div style={{ maxHeight: 180, overflowY: "auto", display: "grid", gap: 6 }}>
+    {sortedTeams.map((team) => (
+      <label key={team} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <input
+          type="checkbox"
+          checked={parseTeamList(tournamentResults.highest_scoring_team).includes(team)}
+          onChange={() => toggleTournamentTeam("highest_scoring_team", team)}
+        />
+        {team}
+      </label>
+    ))}
+  </div>
+</div>
+
+<div style={css.box}>
+  <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8 }}>
+    En Çok Gol Yiyen Takım
+  </div>
+
+  <div style={{ maxHeight: 180, overflowY: "auto", display: "grid", gap: 6 }}>
+    {sortedTeams.map((team) => (
+      <label key={team} style={{ display: "flex", gap: 8, alignItems: "center" }}>
+        <input
+          type="checkbox"
+          checked={parseTeamList(tournamentResults.most_conceding_team).includes(team)}
+          onChange={() => toggleTournamentTeam("most_conceding_team", team)}
+        />
+        {team}
+      </label>
+    ))}
+  </div>
+</div>
     </div>
   </div>
 )}
