@@ -131,6 +131,12 @@ function normalizeText(value) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("tr-TR");
 }
+function parseTeamList(value) {
+  return String(value || "")
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
 function calculateStandings(fixtures) {
   const tableByGroup = Object.fromEntries(
     groups.map(([group, teams]) => [
@@ -276,19 +282,17 @@ if (
     points[tournamentResults.third_place].thirdPlaceBonus = 4;
   }
 
-  if (
-    tournamentResults.highest_scoring_team &&
-    points[tournamentResults.highest_scoring_team]
-  ) {
-    points[tournamentResults.highest_scoring_team].highestScoringBonus = 3;
+parseTeamList(tournamentResults.highest_scoring_team).forEach((team) => {
+  if (points[team]) {
+    points[team].highestScoringBonus = 3;
   }
+});
 
-  if (
-    tournamentResults.most_conceding_team &&
-    points[tournamentResults.most_conceding_team]
-  ) {
-    points[tournamentResults.most_conceding_team].mostConcedingPenalty = -3;
+parseTeamList(tournamentResults.most_conceding_team).forEach((team) => {
+  if (points[team]) {
+    points[team].mostConcedingPenalty = -3;
   }
+});
 
   Object.values(points).forEach((t) => {
     t.redCards = Number(manualRedCards[t.team] || 0);
@@ -1753,31 +1757,43 @@ return (
         onChange={(e) => updateTournamentResult("top_scorer", e.target.value)}
       />
 
-      <select
-        style={css.input}
-        value={tournamentResults.highest_scoring_team}
-        onChange={(e) =>
-          updateTournamentResult("highest_scoring_team", e.target.value)
-        }
-      >
-        <option value="">En Çok Gol Atan Takım</option>
-        {sortedTeams.map((team) => (
-          <option key={team} value={team}>{team}</option>
-        ))}
-      </select>
+<select
+  multiple
+  size={5}
+  style={css.input}
+  value={parseTeamList(tournamentResults.highest_scoring_team)}
+  onChange={(e) =>
+    updateTournamentResult(
+      "highest_scoring_team",
+      Array.from(e.target.selectedOptions)
+        .map((option) => option.value)
+        .join(", ")
+    )
+  }
+>
+  {sortedTeams.map((team) => (
+    <option key={team} value={team}>{team}</option>
+  ))}
+</select>
 
-      <select
-        style={css.input}
-        value={tournamentResults.most_conceding_team}
-        onChange={(e) =>
-          updateTournamentResult("most_conceding_team", e.target.value)
-        }
-      >
-        <option value="">En Çok Gol Yiyen Takım</option>
-        {sortedTeams.map((team) => (
-          <option key={team} value={team}>{team}</option>
-        ))}
-      </select>
+<select
+  multiple
+  size={5}
+  style={css.input}
+  value={parseTeamList(tournamentResults.most_conceding_team)}
+  onChange={(e) =>
+    updateTournamentResult(
+      "most_conceding_team",
+      Array.from(e.target.selectedOptions)
+        .map((option) => option.value)
+        .join(", ")
+    )
+  }
+>
+  {sortedTeams.map((team) => (
+    <option key={team} value={team}>{team}</option>
+  ))}
+</select>
     </div>
   </div>
 )}
