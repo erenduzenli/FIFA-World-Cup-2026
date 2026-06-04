@@ -1373,7 +1373,10 @@ return (
                   ))}
                 </select>
               ) : (
-                  <div style={teamStyle(m.home)}>{m.home}</div>
+                  <div style={teamStyle(m.home)}>
+                   {m.home}
+                   {m.winType === "penalties" && m.winner === m.home ? " (p)" : ""}
+                </div>
               )}
 
               {isAdmin ? (
@@ -1436,7 +1439,10 @@ return (
                   ))}
                 </select>
               ) : (
-                  <div style={{ textAlign: "right", ...teamStyle(m.away) }}>{m.away}</div>
+                  <div style={{ textAlign: "right", ...teamStyle(m.away) }}>
+                   {m.away}
+                   {m.winType === "penalties" && m.winner === m.away ? " (p)" : ""}
+                  </div>
               )}
 
 {isAdmin && (
