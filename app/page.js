@@ -1250,7 +1250,7 @@ gridTemplateColumns: isAdmin
         const groupFixtures = fixtures.filter((m) => m.stage === "Grup" && m.group === group);
 
 return (
-  <div key={group} style={css.card}>
+  <div key={group} style={{ ...css.card, overflowX: "auto" }}>
     <div
       style={{
         padding: "12px 16px",
@@ -1269,6 +1269,7 @@ return (
                 style={{
                   ...css.row,
                   gridTemplateColumns: isAdmin ? "1fr 70px 70px 1fr 220px" : "1fr 40px 1fr",
+                  minWidth: isAdmin ? 680 : undefined,
                 }}
               >
                 <div style={teamStyle(m.home)}>{m.home}</div>
@@ -1333,7 +1334,7 @@ return (
       if (stageFixtures.length === 0) return null;
 
 return (
-  <div key={stage} style={css.card}>
+  <div key={stage} style={{ ...css.card, overflowX: "auto" }}>
     <div
       style={{
         padding: "12px 16px",
@@ -1354,6 +1355,7 @@ return (
                 gridTemplateColumns: isAdmin
                   ? "70px 1.4fr 70px 70px 1.4fr 220px"
                   : "70px 1.4fr 70px 1.4fr",
+                minWidth: isAdmin ? 820 : undefined,
               }}
             >
               <div>{index + 1}</div>
