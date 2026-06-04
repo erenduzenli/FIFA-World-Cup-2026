@@ -27,7 +27,12 @@ function normalizeText(value) {
     .replace(/[\u0300-\u036f]/g, "")
     .toLocaleLowerCase("tr-TR");
 }
-
+function parseTeamList(value) {
+  return String(value || "")
+    .split(",")
+    .map((x) => x.trim())
+    .filter(Boolean);
+}
 function calculateStandings(fixtures) {
   const tableByGroup = Object.fromEntries(
     groups.map(([group, teams]) => [
@@ -192,19 +197,17 @@ function calculateTeamGamePoints(
     points[tournamentResults.third_place].thirdPlaceBonus = 4;
   }
 
-  if (
-    tournamentResults.highest_scoring_team &&
-    points[tournamentResults.highest_scoring_team]
-  ) {
-    points[tournamentResults.highest_scoring_team].highestScoringBonus = 3;
+parseTeamList(tournamentResults.highest_scoring_team).forEach((team) => {
+  if (points[team]) {
+    points[team].highestScoringBonus = 3;
   }
+});
 
-  if (
-    tournamentResults.most_conceding_team &&
-    points[tournamentResults.most_conceding_team]
-  ) {
-    points[tournamentResults.most_conceding_team].mostConcedingPenalty = -3;
+parseTeamList(tournamentResults.most_conceding_team).forEach((team) => {
+  if (points[team]) {
+    points[team].mostConcedingPenalty = -3;
   }
+});
 
   Object.values(points).forEach((t) => {
     t.redCards = Number(manualRedCards[t.team] || 0);
