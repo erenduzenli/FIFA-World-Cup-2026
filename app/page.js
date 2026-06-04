@@ -628,7 +628,31 @@ setFixtures((prev) =>
   )
 );
 }
+  
+async function saveFixtureTeams(id) {
+  const match = fixtures.find((m) => m.id === id);
+  if (!match) return;
 
+  const updates = {
+    home: match.home,
+    away: match.away,
+  };
+
+  const res = await fetch("/api/admin/fixtures", {
+    method: "PATCH",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ pin: adminPin, id, updates }),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    alert("Takımlar kaydedilemedi: " + text);
+    return;
+  }
+
+  alert("Takımlar kaydedildi.");
+}
+  
 async function editFixture(id) {
   const updates = {
     status: "Düzenleniyor",
@@ -1436,17 +1460,23 @@ return (
         ))}
     </select>
 
-    <div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-      <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>
-        Uygula
-      </button>
-      <button style={css.btn(false)} onClick={() => editFixture(m.id)}>
-        Düzenle
-      </button>
-      <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>
-        Sıfırla
-      </button>
-    </div>
+<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+  <button style={css.btn(false)} onClick={() => saveFixtureTeams(m.id)}>
+    Takımları Kaydet
+  </button>
+
+  <button style={css.btn(true)} onClick={() => markPlayed(m.id)}>
+    Uygula
+  </button>
+
+  <button style={css.btn(false)} onClick={() => editFixture(m.id)}>
+    Düzenle
+  </button>
+
+  <button style={css.dangerBtn} onClick={() => resetFixture(m.id)}>
+    Sıfırla
+  </button>
+</div>
   </div>
 )}
             </div>
