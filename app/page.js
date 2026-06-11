@@ -1140,19 +1140,15 @@ onClick={() => {
       style={{
         ...css.row,
         ...css.head,
-gridTemplateColumns: "60px 180px 90px repeat(12,0.9fr) 1fr 1fr",
+gridTemplateColumns: isAdmin
+  ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
+  : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
         minWidth: 1500,
       }}
     >
-<div style={{ position: "sticky", left: 0, zIndex: 4, background: "#0d1c40" }}>
-  #
-</div>
-<div style={{ position: "sticky", left: 70, zIndex: 4, background: "#0d1c40" }}>
-  Ad Soyad
-</div>
-<div style={{ position: "sticky", left: 260, zIndex: 4, background: "#0d1c40" }}>
-  Puan
-</div>
+      <div>#</div>
+      <div>Ad Soyad</div>
+      <div>Puan</div>
 
       {pots.map((p) => (
         <div key={p.id}>Grup {p.id}</div>
@@ -1177,30 +1173,18 @@ gridTemplateColumns: "60px 180px 90px repeat(12,0.9fr) 1fr 1fr",
             key={p.id}
             style={{
               ...css.row,
-gridTemplateColumns: "60px 180px 90px repeat(12,0.9fr) 1fr 1fr",
+gridTemplateColumns: isAdmin
+  ? "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr"
+  : "60px 1.2fr 0.8fr repeat(12,0.9fr) 1fr 1fr",
               minWidth: 1500,
             }}
           >
-<div style={{ position: "sticky", left: 0, zIndex: 3, background: "#091733" }}>
-  {index + 1}
-</div>
+            <div>{index + 1}</div>
+            <div>{p.name}</div>
 
-<div style={{ position: "sticky", left: 70, zIndex: 3, background: "#091733" }}>
-  {p.name}
-</div>
-
-<div
-  style={{
-    position: "sticky",
-    left: 260,
-    zIndex: 3,
-    background: "#091733",
-    color: "#facc15",
-    fontWeight: 900,
-  }}
->
-  {p.points}
-</div>
+            <div style={{ color: "#facc15", fontWeight: 900 }}>
+              {p.points}
+            </div>
 
 {p.picks.map((pick, i) => (
   <div key={i} style={visible ? teamStyle(pick) : {}}>
