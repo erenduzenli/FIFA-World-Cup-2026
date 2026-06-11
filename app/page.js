@@ -534,6 +534,95 @@ useEffect(() => {
   selectionsVisible,
 ]);
 
+  useEffect(() => {
+  async function refreshPublicData() {
+    if (document.visibilityState !== "visible") return;
+
+    const [
+      fixturesRes,
+      settingsRes,
+      redCardsRes,
+      tournamentRes,
+      eliminatedRes,
+    ] = await Promise.all([
+      supabase.from("fixtures").select("*").order("id", { ascending: true }),
+      supabase.from("settings").select("*"),
+      supabase.from("team_red_cards").select("*"),
+      supabase.from("tournament_results").select("*").eq("id", 1).single(),
+      supabase.from("eliminated_teams").select("*"),
+    ]);
+
+    if (!fixturesRes.error) {
+      setFixtures(
+        fixturesRes.data.map((m) => ({
+          id: m.id,
+          stage: m.stage,
+          group: m.group_name,
+          home: m.home,
+          away: m.away,
+          homeGoals: m.home_goals ?? "",
+          awayGoals: m.away_goals ?? "",
+          homeRedCards: m.home_red_cards ?? "",
+          awayRedCards: m.away_red_cards ?? "",
+          status: m.status,
+          locked: m.locked,
+          winner: m.winner,
+          winType: m.win_type,
+        }))
+      );
+    }
+
+    if (!settingsRes.error) {
+      const selectionsSetting = settingsRes.data.find((x) => x.key === "selections_visible");
+      const ownPanelSetting = settingsRes.data.find((x) => x.key === "own_pick_panel_visible");
+      const groupBonusSetting = settingsRes.data.find((x) => x.key === "group_bonus_active");
+      const joinSetting = settingsRes.data.find((x) => x.key === "join_open");
+
+      setSelectionsVisible(selectionsSetting?.value === true);
+      setOwnPickPanelVisible(ownPanelSetting?.value !== false);
+      setGroupBonusActive(groupBonusSetting?.value === true);
+      setJoinOpen(joinSetting?.value !== false);
+    }
+
+    if (!redCardsRes.error) {
+      setManualRedCards(
+        Object.fromEntries(
+          redCardsRes.data.map((x) => [x.team, String(x.red_cards)])
+        )
+      );
+    }
+
+    if (!tournamentRes.error) {
+      setTournamentResults({
+        champion: tournamentRes.data.champion || "",
+        runner_up: tournamentRes.data.runner_up || "",
+        third_place: tournamentRes.data.third_place || "",
+        top_scorer: tournamentRes.data.top_scorer || "",
+        highest_scoring_team: tournamentRes.data.highest_scoring_team || "",
+        most_conceding_team: tournamentRes.data.most_conceding_team || "",
+      });
+    }
+
+    if (!eliminatedRes.error) {
+      setEliminatedTeams(
+        Object.fromEntries(eliminatedRes.data.map((x) => [x.team, true]))
+      );
+    }
+
+    await loadLeaderboard();
+  }
+
+  const interval = setInterval(refreshPublicData, 60000);
+
+  document.addEventListener("visibilitychange", refreshPublicData);
+
+  return () => {
+    clearInterval(interval);
+    document.removeEventListener("visibilitychange", refreshPublicData);
+  };
+}, [isAdmin, adminPin, viewerCredentials]);
+  
+
   const tabs = [
     ["leaderboard", "🏆", "Lig Tablosu"],
     ["standings", "📊", "Puan Durumu"],
