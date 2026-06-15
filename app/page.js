@@ -1244,6 +1244,115 @@ function downloadLeaderboardCsv() {
 
   URL.revokeObjectURL(url);
 }
+
+  function downloadTop10Image() {
+  const top10 = leaderboardRows.slice(0, 10);
+
+  if (top10.length === 0) {
+    alert("Lig tablosunda henüz veri yok.");
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  const width = 900;
+  const height = 980;
+  const scale = 2;
+
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, "#071634");
+  gradient.addColorStop(1, "#020a1f");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = "#facc15";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(24, 24, width - 48, height - 48);
+
+  ctx.fillStyle = "#facc15";
+  ctx.font = "900 38px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("FIFA DÜNYA KUPASI 2026", width / 2, 82);
+
+  ctx.fillStyle = "#cbd5e1";
+  ctx.font = "700 22px Arial";
+  ctx.fillText("Güncel İlk 10 Sıralama", width / 2, 120);
+
+  const now = new Date();
+  const dateText = now.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
+
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "500 17px Arial";
+  ctx.fillText(dateText, width / 2, 148);
+
+  const startY = 195;
+  const rowH = 68;
+
+  ctx.fillStyle = "#0d1c40";
+  ctx.fillRect(60, startY - 44, width - 120, 44);
+
+  ctx.fillStyle = "#facc15";
+  ctx.font = "800 18px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText("Sıra", 82, startY - 16);
+  ctx.fillText("Katılımcı", 180, startY - 16);
+
+  ctx.textAlign = "right";
+  ctx.fillText("Puan", width - 90, startY - 16);
+
+  top10.forEach((p, index) => {
+    const y = startY + index * rowH;
+
+    ctx.fillStyle = index % 2 === 0 ? "#091733" : "#0b1a3b";
+    ctx.fillRect(60, y, width - 120, rowH - 8);
+
+    ctx.fillStyle = index === 0 ? "#facc15" : "#e2e8f0";
+    ctx.font = "900 26px Arial";
+    ctx.textAlign = "left";
+
+    const medal =
+      index === 0 ? "🥇" :
+      index === 1 ? "🥈" :
+      index === 2 ? "🥉" :
+      `${index + 1}.`;
+
+    ctx.fillText(medal, 82, y + 42);
+
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "800 25px Arial";
+
+    const name = String(p.name || "").length > 28
+      ? String(p.name || "").slice(0, 25) + "..."
+      : String(p.name || "");
+
+    ctx.fillText(name, 180, y + 42);
+
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 28px Arial";
+    ctx.textAlign = "right";
+    ctx.fillText(String(p.points), width - 90, y + 42);
+  });
+
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "500 16px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Puanlar güncel lig tablosuna göre hazırlanmıştır.", width / 2, height - 58);
+
+  const link = document.createElement("a");
+  link.download = "ilk-10-siralama.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
   
 function canSeeParticipant(p) {
   return !!p.visible;
@@ -1307,9 +1416,18 @@ onClick={() => {
     <p style={css.desc}>Anlık puan sıralaması</p>
   </div>
 
+<div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
   <button style={css.btn(true)} onClick={downloadLeaderboardCsv}>
     Lig Tablosu'nu İndir
   </button>
+
+  {isAdmin && (
+    <button style={css.btn(true)} onClick={downloadTop10Image}>
+      İlk 10 Görselini İndir
+    </button>
+  )}
+</div>
+  
 </div>
 {isAdmin && (
   <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
