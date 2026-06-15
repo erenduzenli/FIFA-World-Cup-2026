@@ -137,43 +137,179 @@ function parseTeamList(value) {
     .map((x) => x.trim())
     .filter(Boolean);
 }
-function calculateStandings(fixtures) {
+const fifaRankingOrder = Object.fromEntries(
+  pots.flatMap((p) => p.teams).map((team, index) => [team, index + 1])
+);
+
+function calculateMiniTable(tiedTeams, groupMatches) {
+  const mini = Object.fromEntries(
+    tiedTeams.map((team) => [
+      team,
+      { team, pts: 0, gf: 0, ga: 0, gd: 0 },
+    ])
+  );
+
+  groupMatches.forEach((m) => {
+    if (!tiedTeams.includes(m.home) || !tiedTeams.includes(m.away)) return;
+    if (m.homeGoals === "" || m.awayGoals === "") return;
+
+    const hg = Number(m.homeGoals);
+    const ag = Number(m.awayGoals);
+
+    if (!Number.isFinite(hg) || !Number.isFinite(ag)) return;
+
+    mini[m.home].gf += hg;
+    mini[m.home].ga += ag;
+    mini[m.away].gf += ag;
+    mini[m.away].ga += hg;
+
+    mini[m.home].gd = mini[m.home].gf - mini[m.home].ga;
+    mini[m.away].gd = mini[m.away].gf - mini[m.away].ga;
+
+    if (hg > ag) {
+      mini[m.home].pts += 3;
+    } else if (ag > hg) {
+      mini[m.away].pts += 3;
+    } else {
+      mini[m.home].pts += 1;
+      mini[m.away].pts += 1;
+    }
+  });
+
+  return mini;
+}
+
+function rankGroupRows(rows, groupMatches, manualRedCards = {}) {
+  const rowsByPts = {};
+
+  rows.forEach((row) => {
+    if (!rowsByPts[row.pts]) rowsByPts[row.pts] = [];
+    rowsByPts[row.pts].push(row);
+  });
+
+  return Object.keys(rowsByPts)
+    .map(Number)
+    .sort((a, b) => b - a)
+    .flatMap((pts) => {
+      const tiedRows = rowsByPts[pts];
+
+      if (tiedRows.length === 1) return tiedRows;
+
+      const tiedTeams = tiedRows.map((r) => r.team);
+      const mini = calculateMiniTable(tiedTeams, groupMatches);
+
+      return [...tiedRows].sort((a, b) => {
+        const miniA = mini[a.team];
+        const miniB = mini[b.team];
+
+        return (
+          // 1. Eşit takımlar arasındaki maçlarda alınan puan
+          miniB.pts - miniA.pts ||
+
+          // 2. Eşit takımlar arasındaki gol averajı
+          miniB.gd - miniA.gd ||
+
+          // 3. Eşit takımlar arasındaki atılan gol
+          miniB.gf - miniA.gf ||
+
+          // 4. Genel gol averajı
+          b.gd - a.gd ||
+
+          // 5. Genel atılan gol
+          b.gf - a.gf ||
+
+          // 6. Team conduct score
+          // Şimdilik sistemde yalnızca kırmızı kart tuttuğumuz için,
+          // daha az kırmızı kartı olan takım yukarıda olur.
+          Number(manualRedCards[a.team] || 0) - Number(manualRedCards[b.team] || 0) ||
+
+          // 7. FIFA/Coca-Cola Men’s World Ranking
+          // Burada senin torba sıralaman ranking fallback gibi kullanılıyor.
+          (fifaRankingOrder[a.team] || 999) - (fifaRankingOrder[b.team] || 999) ||
+
+          // Son güvenlik fallback'i
+          a.team.localeCompare(b.team, "tr-TR")
+        );
+      });
+    });
+}
+
+function calculateStandings(fixtures, manualRedCards = {}) {
   const tableByGroup = Object.fromEntries(
     groups.map(([group, teams]) => [
       group,
-      teams.map((team) => ({ team, played: 0, won: 0, drawn: 0, lost: 0, gf: 0, ga: 0, gd: 0, pts: 0 })),
+      teams.map((team) => ({
+        team,
+        played: 0,
+        won: 0,
+        drawn: 0,
+        lost: 0,
+        gf: 0,
+        ga: 0,
+        gd: 0,
+        pts: 0,
+      })),
     ])
   );
 
   const indexByGroupTeam = {};
+
   Object.entries(tableByGroup).forEach(([group, rows]) => {
-    indexByGroupTeam[group] = Object.fromEntries(rows.map((r, i) => [r.team, i]));
+    indexByGroupTeam[group] = Object.fromEntries(
+      rows.map((r, i) => [r.team, i])
+    );
   });
+
+  const completedGroupMatches = {};
 
   fixtures.forEach((m) => {
     if (m.stage !== "Grup") return;
     if (m.homeGoals === "" || m.awayGoals === "") return;
+
     const hg = Number(m.homeGoals);
     const ag = Number(m.awayGoals);
+
     if (!Number.isFinite(hg) || !Number.isFinite(ag)) return;
 
     const rows = tableByGroup[m.group];
     const h = rows[indexByGroupTeam[m.group][m.home]];
     const a = rows[indexByGroupTeam[m.group][m.away]];
+
     if (!h || !a) return;
 
-    h.played += 1; a.played += 1;
-    h.gf += hg; h.ga += ag; h.gd = h.gf - h.ga;
-    a.gf += ag; a.ga += hg; a.gd = a.gf - a.ga;
+    if (!completedGroupMatches[m.group]) completedGroupMatches[m.group] = [];
+    completedGroupMatches[m.group].push(m);
 
-    if (hg > ag) { h.won += 1; h.pts += 3; a.lost += 1; }
-    else if (hg < ag) { a.won += 1; a.pts += 3; h.lost += 1; }
-    else { h.drawn += 1; a.drawn += 1; h.pts += 1; a.pts += 1; }
+    h.played += 1;
+    a.played += 1;
+
+    h.gf += hg;
+    h.ga += ag;
+    h.gd = h.gf - h.ga;
+
+    a.gf += ag;
+    a.ga += hg;
+    a.gd = a.gf - a.ga;
+
+    if (hg > ag) {
+      h.won += 1;
+      h.pts += 3;
+      a.lost += 1;
+    } else if (hg < ag) {
+      a.won += 1;
+      a.pts += 3;
+      h.lost += 1;
+    } else {
+      h.drawn += 1;
+      a.drawn += 1;
+      h.pts += 1;
+      a.pts += 1;
+    }
   });
 
   return Object.entries(tableByGroup).map(([group, rows]) => [
     group,
-    [...rows].sort((a, b) => b.pts - a.pts || b.gd - a.gd || b.gf - a.gf || a.team.localeCompare(b.team)),
+    rankGroupRows(rows, completedGroupMatches[group] || [], manualRedCards),
   ]);
 }
 
@@ -485,7 +621,10 @@ const [viewerCredentials, setViewerCredentials] = useState(null);
   highest_scoring_team: "",
   most_conceding_team: "",
 });
-  const standings = useMemo(() => calculateStandings(fixtures), [fixtures]);
+  const standings = useMemo(
+  () => calculateStandings(fixtures, manualRedCards),
+  [fixtures, manualRedCards]
+  );
   const completed = useMemo(() => Object.keys(selection).length, [selection]);
   const teamPoints = useMemo(
   () =>
