@@ -1282,7 +1282,7 @@ function downloadLeaderboardCsv() {
 
   ctx.fillStyle = "#cbd5e1";
   ctx.font = "700 22px Arial";
-  ctx.fillText("Güncel İlk 10 Sıralama", width / 2, 120);
+  ctx.fillText("Güncel İlk 10", width / 2, 120);
 
   const now = new Date();
   const dateText = now.toLocaleDateString("tr-TR", {
