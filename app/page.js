@@ -1245,6 +1245,59 @@ function downloadLeaderboardCsv() {
   URL.revokeObjectURL(url);
 }
 
+  function downloadTeamPointsCsv() {
+  const headers = [
+    "Takım",
+    "Toplam",
+    "Maç Puanı",
+    "Attığı Gol",
+    "Yediği Gol",
+    "Grup Sıralama Bonusu",
+    "Şampiyon",
+    "İkinci",
+    "Üçüncü",
+    "En Çok Gol Atan",
+    "En Çok Gol Yiyen",
+    "Kırmızı Kart",
+  ];
+
+  const rows = teamPoints.map((x) => [
+    x.team,
+    x.totalPoints,
+    x.matchPoints,
+    x.goals,
+    x.conceded,
+    x.groupBonus,
+    x.championBonus,
+    x.runnerUpBonus,
+    x.thirdPlaceBonus,
+    x.highestScoringBonus,
+    x.mostConcedingPenalty,
+    x.redCards,
+  ]);
+
+  const csv = [headers, ...rows]
+    .map((row) =>
+      row
+        .map((value) => `"${String(value ?? "").replace(/"/g, '""')}"`)
+        .join(";")
+    )
+    .join("\n");
+
+  const blob = new Blob(["\ufeff" + csv], {
+    type: "text/csv;charset=utf-8;",
+  });
+
+  const url = URL.createObjectURL(blob);
+  const link = document.createElement("a");
+
+  link.href = url;
+  link.download = "takim-puanlari.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+}
+
   function downloadTop10Image() {
   const top10 = leaderboardRows.slice(0, 10);
 
@@ -1862,11 +1915,30 @@ return (
 
         {tab === "teams" && (
           <>
-            <h1 style={css.h1}>Takım Puanları</h1>
-            <p style={css.desc}>
-  Takım puanları; maç puanı, atılan goller ve turnuva bonusları toplanarak hesaplanır.
-  Kırmızı kartlar ve en çok gol yiyen takım cezası toplam puandan düşülür.
-</p>
+<div
+  style={{
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    gap: 12,
+    flexWrap: "wrap",
+    marginBottom: 16,
+  }}
+>
+  <div>
+    <h1 style={css.h1}>Takım Puanları</h1>
+    <p style={css.desc}>
+      Takım puanları; maç puanı, atılan goller ve turnuva bonusları toplanarak hesaplanır.
+      Kırmızı kartlar ve en çok gol yiyen takım cezası toplam puandan düşülür.
+    </p>
+  </div>
+
+  {isAdmin && (
+    <button style={css.btn(true)} onClick={downloadTeamPointsCsv}>
+      Takım Puanları'nı İndir
+    </button>
+  )}
+</div>
           <div style={{ ...css.card, padding: 16, marginBottom: 16 }}>
   <div style={{ color: "#facc15", fontWeight: 800, marginBottom: 8, fontSize: 22 }}>
     Tahmin Bonusları
