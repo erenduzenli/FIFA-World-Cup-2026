@@ -1329,7 +1329,7 @@ function downloadLeaderboardCsv() {
   ctx.strokeRect(24, 24, width - 48, height - 48);
 
 const now = new Date();
-const isPeriDay = now.getDate() === 2 && now.getMonth() === 6;
+const isPeriDay = now.getDate() === 4 && now.getMonth() === 6;
 
 if (!isPeriDay) {
   ctx.fillStyle = "#facc15";
