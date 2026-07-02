@@ -1328,15 +1328,15 @@ function downloadLeaderboardCsv() {
   ctx.lineWidth = 4;
   ctx.strokeRect(24, 24, width - 48, height - 48);
 
+const now = new Date();
+const isPeriDay = now.getDate() === 2 && now.getMonth() === 6;
+
 if (!isPeriDay) {
   ctx.fillStyle = "#facc15";
   ctx.font = "900 38px Arial";
   ctx.textAlign = "center";
   ctx.fillText("FIFA DÜNYA KUPASI 2026", width / 2, 82);
 }
-
-const now = new Date();
-const isPeriDay = now.getDate() === 2 && now.getMonth() === 6;
 
 if (isPeriDay) {
   ctx.fillStyle = "#facc15";
