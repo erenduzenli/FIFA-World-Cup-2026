@@ -1333,24 +1333,30 @@ function downloadLeaderboardCsv() {
   ctx.textAlign = "center";
   ctx.fillText("FIFA DÜNYA KUPASI 2026", width / 2, 82);
 
+const now = new Date();
+const isPeriDay = now.getDate() === 2 && now.getMonth() === 6;
+
+if (isPeriDay) {
+  ctx.fillStyle = "#facc15";
+  ctx.font = "900 44px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Periciğimizin doğum günü 🎂", width / 2, 132);
+} else {
   ctx.fillStyle = "#cbd5e1";
   ctx.font = "700 22px Arial";
+  ctx.textAlign = "center";
   ctx.fillText("Güncel İlk 10 Sıralaması", width / 2, 120);
 
-const now = new Date();
-
-const dateText =
-  now.getDate() === 2 && now.getMonth() === 6
-    ? "Periciğimizin doğum günü 🎂"
-    : now.toLocaleDateString("tr-TR", {
-        day: "2-digit",
-        month: "long",
-        year: "numeric",
-      });
+  const dateText = now.toLocaleDateString("tr-TR", {
+    day: "2-digit",
+    month: "long",
+    year: "numeric",
+  });
 
   ctx.fillStyle = "#94a3b8";
   ctx.font = "500 17px Arial";
   ctx.fillText(dateText, width / 2, 148);
+}
 
   const startY = 195;
   const rowH = 68;
