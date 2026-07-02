@@ -1337,12 +1337,16 @@ function downloadLeaderboardCsv() {
   ctx.font = "700 22px Arial";
   ctx.fillText("Güncel İlk 10 Sıralaması", width / 2, 120);
 
-  const now = new Date();
-  const dateText = now.toLocaleDateString("tr-TR", {
-    day: "2-digit",
-    month: "long",
-    year: "numeric",
-  });
+const now = new Date();
+
+const dateText =
+  now.getDate() === 2 && now.getMonth() === 6
+    ? "Periciğimizin doğum günü 🎂"
+    : now.toLocaleDateString("tr-TR", {
+        day: "2-digit",
+        month: "long",
+        year: "numeric",
+      });
 
   ctx.fillStyle = "#94a3b8";
   ctx.font = "500 17px Arial";
