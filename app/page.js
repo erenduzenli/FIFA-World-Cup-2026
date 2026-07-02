@@ -637,6 +637,11 @@ const [viewerCredentials, setViewerCredentials] = useState(null);
     ),
   [fixtures, manualRedCards, standings, groupBonusActive, tournamentResults]
 );
+
+const teamPointsByName = useMemo(
+  () => Object.fromEntries(teamPoints.map((x) => [x.team, x.totalPoints])),
+  [teamPoints]
+);
 async function loadLeaderboard() {
   const res = await fetch("/api/leaderboard", {
     method: "POST",
@@ -2305,9 +2310,31 @@ return (
                 {pots.map((p) => (
                   <div key={p.id} style={css.box}>
                     <div style={{ color: "#facc15", fontWeight: 900, marginBottom: 10 }}>Torba {p.id}</div>
-                    {p.teams.map((team) => (
-                      <button key={team} onClick={() => setSelection((prev) => ({ ...prev, [p.id]: team }))} style={{ display: "block", width: "100%", textAlign: "left", marginBottom: 8, padding: 10, borderRadius: 10, border: `1px solid ${selection[p.id] === team ? "#facc15" : "#27406f"}`, background: selection[p.id] === team ? "rgba(250,204,21,0.15)" : "#091733", color: "#fff", cursor: "pointer" }}>{team}</button>
-                    ))}
+{p.teams.map((team) => (
+  <button
+    key={team}
+    onClick={() => setSelection((prev) => ({ ...prev, [p.id]: team }))}
+    style={{
+      display: "flex",
+      justifyContent: "space-between",
+      alignItems: "center",
+      width: "100%",
+      textAlign: "left",
+      marginBottom: 8,
+      padding: 10,
+      borderRadius: 10,
+      border: `1px solid ${selection[p.id] === team ? "#facc15" : "#27406f"}`,
+      background: selection[p.id] === team ? "rgba(250,204,21,0.15)" : "#091733",
+      color: "#fff",
+      cursor: "pointer"
+    }}
+  >
+    <span>{team}</span>
+    <span style={{ color: "#facc15", fontWeight: 800 }}>
+      {teamPointsByName[team] ?? 0}
+    </span>
+  </button>
+))}
                   </div>
                 ))}
               </div>
