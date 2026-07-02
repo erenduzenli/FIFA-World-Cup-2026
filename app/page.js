@@ -1328,19 +1328,21 @@ function downloadLeaderboardCsv() {
   ctx.lineWidth = 4;
   ctx.strokeRect(24, 24, width - 48, height - 48);
 
+if (!isPeriDay) {
   ctx.fillStyle = "#facc15";
   ctx.font = "900 38px Arial";
   ctx.textAlign = "center";
   ctx.fillText("FIFA DÜNYA KUPASI 2026", width / 2, 82);
+}
 
 const now = new Date();
 const isPeriDay = now.getDate() === 2 && now.getMonth() === 6;
 
 if (isPeriDay) {
   ctx.fillStyle = "#facc15";
-  ctx.font = "900 44px Arial";
+  ctx.font = "900 46px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("Periciğimizin doğum günü 🎂", width / 2, 132);
+  ctx.fillText("Periciğimizin doğum günü 🎂", width / 2, 92);
 } else {
   ctx.fillStyle = "#cbd5e1";
   ctx.font = "700 22px Arial";
