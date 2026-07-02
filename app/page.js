@@ -1343,6 +1343,10 @@ if (isPeriDay) {
   ctx.font = "900 46px Arial";
   ctx.textAlign = "center";
   ctx.fillText("Periciğimizin doğum günü 🎂", width / 2, 92);
+
+  ctx.fillStyle = "#cbd5e1";
+  ctx.font = "700 22px Arial";
+  ctx.fillText("Güncel İlk 10 Sıralaması", width / 2, 128);
 } else {
   ctx.fillStyle = "#cbd5e1";
   ctx.font = "700 22px Arial";
