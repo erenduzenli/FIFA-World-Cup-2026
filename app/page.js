@@ -1347,7 +1347,7 @@ if (isPeriDay) {
   ctx.fillStyle = "#facc15";
   ctx.font = "900 46px Arial";
   ctx.textAlign = "center";
-  ctx.fillText("Periciğimizin doğum günü 🎂", width / 2, 92);
+  ctx.fillText("🎂 Periciğimizin doğum günü 🎂", width / 2, 92);
 
   ctx.fillStyle = "#cbd5e1";
   ctx.font = "700 22px Arial";
