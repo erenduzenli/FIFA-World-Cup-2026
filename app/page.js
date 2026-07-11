@@ -1461,6 +1461,7 @@ function downloadWinnersImage() {
   canvas.height = height;
 
   const ctx = canvas.getContext("2d");
+  const navy = "#102b63";
 
   // Altın gradient arka plan
 const bg = ctx.createLinearGradient(0, 0, 0, height);
@@ -1481,13 +1482,13 @@ ctx.fillText("🏆", width / 2, 575);
 ctx.restore();
 
 // Dış çerçeve
-ctx.strokeStyle = "#071634";
+ctx.strokeStyle = navy;
 ctx.lineWidth = 10;
 ctx.strokeRect(24, 24, width - 48, height - 48);
 
 // Başlık
 ctx.textAlign = "center";
-ctx.fillStyle = "#071634";
+ctx.fillStyle = navy;
 ctx.font = "900 42px Arial";
 ctx.fillText("FIFA 2026 Dünya Kupası", width / 2, 90);
 
@@ -1495,14 +1496,14 @@ ctx.font = "900 34px Arial";
 ctx.fillText("Nihai Puan Durumu", width / 2, 138);
 
 // Alt başlık
-ctx.fillStyle = "#071634";
-ctx.font = "900 30px Arial";
-ctx.fillText("Şampiyonlar", width / 2, 185);
+ctx.fillStyle = navy;
+ctx.font = "900 34px Arial";
+ctx.fillText("Şampiyonlar", width / 2, 188);
 
   const medals = ["🥇", "🥈", "🥉"];
   const medalColors = ["#facc15", "#cbd5e1", "#cd7f32"];
-  const startY = 260;
-  const rowHeight = 125;
+  const startY = 255;
+  const rowHeight = 150;
 
   top3.forEach((player, index) => {
     const y = startY + index * rowHeight;
@@ -1513,27 +1514,29 @@ ctx.fillText("Şampiyonlar", width / 2, 185);
     ctx.lineWidth = 3;
     roundRect(ctx, 110, y, 980, 90, 18, true, true);
 
-    // Sıra / madalya
-    ctx.font = "900 50px Arial";
-    ctx.fillStyle = medalColors[index];
-    ctx.textAlign = "left";
-    ctx.fillText(medals[index], 150, y + 68);
+const centerY = y + 58;
 
-    ctx.font = "900 30px Arial";
-    ctx.fillText(`${index + 1}.`, 220, y + 68);
+// Sıra / madalya
+ctx.font = "900 46px Arial";
+ctx.fillStyle = medalColors[index];
+ctx.textAlign = "left";
+ctx.fillText(medals[index], 150, centerY);
 
-    // İsim
+ctx.font = "900 30px Arial";
+ctx.fillText(`${index + 1}.`, 220, centerY);
+
+// İsim
 ctx.fillStyle = "#e2e8f0";
 ctx.font = "900 34px Arial";
-ctx.fillText(player.name, 300, y + 52);
+ctx.fillText(player.name, 300, centerY);
 
-    // Puan
-    ctx.textAlign = "right";
+// Puan
+ctx.textAlign = "right";
 ctx.fillStyle = "#e2e8f0";
 ctx.font = "900 42px Arial";
-ctx.fillText(String(player.points), 1030, y + 62);
+ctx.fillText(String(player.points), 1030, centerY);
 
-    ctx.textAlign = "left";
+ctx.textAlign = "left";
   });
 
   // Dosya indir
