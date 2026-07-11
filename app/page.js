@@ -1427,7 +1427,113 @@ if (isPeriDay) {
   link.href = canvas.toDataURL("image/png");
   link.click();
 }
+
+function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
+  ctx.beginPath();
+  ctx.moveTo(x + radius, y);
+  ctx.lineTo(x + width - radius, y);
+  ctx.quadraticCurveTo(x + width, y, x + width, y + radius);
+  ctx.lineTo(x + width, y + height - radius);
+  ctx.quadraticCurveTo(x + width, y + height, x + width - radius, y + height);
+  ctx.lineTo(x + radius, y + height);
+  ctx.quadraticCurveTo(x, y + height, x, y + height - radius);
+  ctx.lineTo(x, y + radius);
+  ctx.quadraticCurveTo(x, y, x + radius, y);
+  ctx.closePath();
+
+  if (fill) ctx.fill();
+  if (stroke) ctx.stroke();
+}
   
+function downloadWinnersImage() {
+  const top3 = leaderboardRows.slice(0, 3);
+
+  if (top3.length === 0) {
+    alert("İndirilecek sıralama bulunamadı.");
+    return;
+  }
+
+  const width = 1200;
+  const height = 900;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = width;
+  canvas.height = height;
+
+  const ctx = canvas.getContext("2d");
+
+  // Arka plan
+  ctx.fillStyle = "#071634";
+  ctx.fillRect(0, 0, width, height);
+
+  // Dış çerçeve
+  ctx.strokeStyle = "#facc15";
+  ctx.lineWidth = 8;
+  ctx.strokeRect(24, 24, width - 48, height - 48);
+
+  // Başlık
+  ctx.textAlign = "center";
+  ctx.fillStyle = "#facc15";
+  ctx.font = "900 40px Arial";
+  ctx.fillText("FIFA 2026 Dünya Kupası", width / 2, 90);
+
+  ctx.fillStyle = "#e2e8f0";
+  ctx.font = "700 32px Arial";
+  ctx.fillText("Nihai Puan Durumu", width / 2, 138);
+
+  // Alt başlık
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "500 20px Arial";
+  ctx.fillText("Şampiyonlar", width / 2, 175);
+
+  const medals = ["🥇", "🥈", "🥉"];
+  const medalColors = ["#facc15", "#cbd5e1", "#cd7f32"];
+  const startY = 245;
+  const rowHeight = 155;
+
+  top3.forEach((player, index) => {
+    const y = startY + index * rowHeight;
+
+    // Kutu
+    ctx.fillStyle = "rgba(250,204,21,0.10)";
+    ctx.strokeStyle = medalColors[index];
+    ctx.lineWidth = 3;
+    roundRect(ctx, 110, y, 980, 110, 20, true, true);
+
+    // Sıra / madalya
+    ctx.font = "900 50px Arial";
+    ctx.fillStyle = medalColors[index];
+    ctx.textAlign = "left";
+    ctx.fillText(medals[index], 150, y + 68);
+
+    ctx.font = "900 30px Arial";
+    ctx.fillText(`${index + 1}.`, 220, y + 68);
+
+    // İsim
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 34px Arial";
+    ctx.fillText(player.name, 300, y + 50);
+
+    // Puan etiketi
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "600 18px Arial";
+    ctx.fillText("Toplam Puan", 300, y + 82);
+
+    // Puan
+    ctx.textAlign = "right";
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 42px Arial";
+    ctx.fillText(String(player.points), 1030, y + 68);
+
+    ctx.textAlign = "left";
+  });
+
+  // Dosya indir
+  const link = document.createElement("a");
+  link.download = "nihai-podyum.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
 function canSeeParticipant(p) {
   return !!p.visible;
 }
@@ -1495,11 +1601,17 @@ onClick={() => {
     Lig Tablosu'nu İndir
   </button>
 
-  {isAdmin && (
+{isAdmin && (
+  <>
     <button style={css.btn(true)} onClick={downloadTop10Image}>
       İlk 10 Görselini İndir
     </button>
-  )}
+
+    <button style={css.btn(true)} onClick={downloadWinnersImage}>
+      Şampiyonları İndir
+    </button>
+  </>
+)}
 </div>
   
 </div>
