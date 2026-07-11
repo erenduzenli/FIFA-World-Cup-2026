@@ -1453,10 +1453,13 @@ function downloadRank4To10Image() {
     return;
   }
 
-  const canvas = document.createElement("canvas");
-  const width = 900;
-  const height = 980;
-  const scale = 2;
+const canvas = document.createElement("canvas");
+const width = 900;
+const startY = 215;
+const rowH = 82;
+const bottomPadding = 30;
+const height = startY + rows4to10.length * rowH + bottomPadding;
+const scale = 2;
 
   canvas.width = width * scale;
   canvas.height = height * scale;
@@ -1475,44 +1478,14 @@ function downloadRank4To10Image() {
   ctx.lineWidth = 4;
   ctx.strokeRect(24, 24, width - 48, height - 48);
 
-  const now = new Date();
-  const isPeriDay = now.getDate() === 4 && now.getMonth() === 6;
+ctx.fillStyle = "#facc15";
+ctx.font = "900 38px Arial";
+ctx.textAlign = "center";
+ctx.fillText("FIFA DÜNYA KUPASI 2026", width / 2, 82);
 
-  if (!isPeriDay) {
-    ctx.fillStyle = "#facc15";
-    ctx.font = "900 38px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("FIFA DÜNYA KUPASI 2026", width / 2, 82);
-  }
-
-  if (isPeriDay) {
-    ctx.fillStyle = "#facc15";
-    ctx.font = "900 46px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("🎂 Periciğimizin doğum günü 🎂", width / 2, 92);
-
-    ctx.fillStyle = "#cbd5e1";
-    ctx.font = "700 22px Arial";
-    ctx.fillText("Güncel 4-10 Sıralaması", width / 2, 128);
-  } else {
-    ctx.fillStyle = "#cbd5e1";
-    ctx.font = "700 22px Arial";
-    ctx.textAlign = "center";
-    ctx.fillText("Güncel 4-10 Sıralaması", width / 2, 120);
-
-    const dateText = now.toLocaleDateString("tr-TR", {
-      day: "2-digit",
-      month: "long",
-      year: "numeric",
-    });
-
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "500 17px Arial";
-    ctx.fillText(dateText, width / 2, 148);
-  }
-
-  const startY = 215;
-  const rowH = 82;
+ctx.fillStyle = "#cbd5e1";
+ctx.font = "700 24px Arial";
+ctx.fillText("Nihai 4-10 Sıralaması", width / 2, 120);
 
   ctx.fillStyle = "#0d1c40";
   ctx.fillRect(60, startY - 44, width - 120, 44);
@@ -1552,11 +1525,6 @@ function downloadRank4To10Image() {
     ctx.textAlign = "right";
     ctx.fillText(String(p.points), width - 90, y + 48);
   });
-
-  ctx.fillStyle = "#94a3b8";
-  ctx.font = "500 16px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText("Puanlar güncel lig tablosuna göre hazırlanmıştır.", width / 2, height - 58);
 
   const link = document.createElement("a");
   link.download = "4-10-siralama.png";
