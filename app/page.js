@@ -1473,7 +1473,7 @@ ctx.fillRect(0, 0, width, height);
 
 // Watermark
 ctx.save();
-ctx.globalAlpha = 0.12;
+ctx.globalAlpha = 0.20;
 ctx.fillStyle = "#071634";
 ctx.font = "900 260px Arial";
 ctx.textAlign = "center";
@@ -1501,8 +1501,8 @@ ctx.fillText("Şampiyonlar", width / 2, 185);
 
   const medals = ["🥇", "🥈", "🥉"];
   const medalColors = ["#facc15", "#cbd5e1", "#cd7f32"];
-  const startY = 245;
-  const rowHeight = 155;
+  const startY = 260;
+  const rowHeight = 125;
 
   top3.forEach((player, index) => {
     const y = startY + index * rowHeight;
@@ -1511,7 +1511,7 @@ ctx.fillText("Şampiyonlar", width / 2, 185);
     ctx.fillStyle = "#071634";
     ctx.strokeStyle = medalColors[index];
     ctx.lineWidth = 3;
-    roundRect(ctx, 110, y, 980, 110, 20, true, true);
+    roundRect(ctx, 110, y, 980, 90, 18, true, true);
 
     // Sıra / madalya
     ctx.font = "900 50px Arial";
@@ -1523,20 +1523,15 @@ ctx.fillText("Şampiyonlar", width / 2, 185);
     ctx.fillText(`${index + 1}.`, 220, y + 68);
 
     // İsim
-    ctx.fillStyle = "#ffffff";
-    ctx.font = "900 34px Arial";
-    ctx.fillText(player.name, 300, y + 50);
-
-    // Puan etiketi
-    ctx.fillStyle = "#94a3b8";
-    ctx.font = "600 18px Arial";
-    ctx.fillText("Toplam Puan", 300, y + 82);
+ctx.fillStyle = "#e2e8f0";
+ctx.font = "900 34px Arial";
+ctx.fillText(player.name, 300, y + 52);
 
     // Puan
     ctx.textAlign = "right";
-    ctx.fillStyle = "#facc15";
-    ctx.font = "900 42px Arial";
-    ctx.fillText(String(player.points), 1030, y + 68);
+ctx.fillStyle = "#e2e8f0";
+ctx.font = "900 42px Arial";
+ctx.fillText(String(player.points), 1030, y + 62);
 
     ctx.textAlign = "left";
   });
