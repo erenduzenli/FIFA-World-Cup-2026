@@ -1503,7 +1503,7 @@ ctx.fillText("Şampiyonlar", width / 2, 188);
   const medals = ["🥇", "🥈", "🥉"];
   const medalColors = ["#facc15", "#cbd5e1", "#cd7f32"];
   const startY = 255;
-  const rowHeight = 150;
+  const rowHeight = 165;
 
   top3.forEach((player, index) => {
     const y = startY + index * rowHeight;
@@ -1526,13 +1526,13 @@ ctx.font = "900 30px Arial";
 ctx.fillText(`${index + 1}.`, 220, centerY);
 
 // İsim
-ctx.fillStyle = "#e2e8f0";
+ctx.fillStyle = medalColors[index];
 ctx.font = "900 34px Arial";
 ctx.fillText(player.name, 300, centerY);
 
 // Puan
 ctx.textAlign = "right";
-ctx.fillStyle = "#e2e8f0";
+ctx.fillStyle = medalColors[index];
 ctx.font = "900 42px Arial";
 ctx.fillText(String(player.points), 1030, centerY);
 
