@@ -1444,6 +1444,125 @@ function roundRect(ctx, x, y, width, height, radius, fill, stroke) {
   if (fill) ctx.fill();
   if (stroke) ctx.stroke();
 }
+
+function downloadRank4To10Image() {
+  const rows4to10 = leaderboardRows.slice(3, 10);
+
+  if (rows4to10.length === 0) {
+    alert("4-10 arası sıralamada henüz veri yok.");
+    return;
+  }
+
+  const canvas = document.createElement("canvas");
+  const width = 900;
+  const height = 980;
+  const scale = 2;
+
+  canvas.width = width * scale;
+  canvas.height = height * scale;
+
+  const ctx = canvas.getContext("2d");
+  ctx.scale(scale, scale);
+
+  const gradient = ctx.createLinearGradient(0, 0, 0, height);
+  gradient.addColorStop(0, "#071634");
+  gradient.addColorStop(1, "#020a1f");
+
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, width, height);
+
+  ctx.strokeStyle = "#facc15";
+  ctx.lineWidth = 4;
+  ctx.strokeRect(24, 24, width - 48, height - 48);
+
+  const now = new Date();
+  const isPeriDay = now.getDate() === 4 && now.getMonth() === 6;
+
+  if (!isPeriDay) {
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 38px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("FIFA DÜNYA KUPASI 2026", width / 2, 82);
+  }
+
+  if (isPeriDay) {
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 46px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("🎂 Periciğimizin doğum günü 🎂", width / 2, 92);
+
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "700 22px Arial";
+    ctx.fillText("Güncel 4-10 Sıralaması", width / 2, 128);
+  } else {
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "700 22px Arial";
+    ctx.textAlign = "center";
+    ctx.fillText("Güncel 4-10 Sıralaması", width / 2, 120);
+
+    const dateText = now.toLocaleDateString("tr-TR", {
+      day: "2-digit",
+      month: "long",
+      year: "numeric",
+    });
+
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "500 17px Arial";
+    ctx.fillText(dateText, width / 2, 148);
+  }
+
+  const startY = 215;
+  const rowH = 82;
+
+  ctx.fillStyle = "#0d1c40";
+  ctx.fillRect(60, startY - 44, width - 120, 44);
+
+  ctx.fillStyle = "#facc15";
+  ctx.font = "800 18px Arial";
+  ctx.textAlign = "left";
+  ctx.fillText("Sıra", 82, startY - 16);
+  ctx.fillText("Katılımcı", 180, startY - 16);
+
+  ctx.textAlign = "right";
+  ctx.fillText("Puan", width - 90, startY - 16);
+
+  rows4to10.forEach((p, index) => {
+    const y = startY + index * rowH;
+    const rank = index + 4;
+
+    ctx.fillStyle = index % 2 === 0 ? "#091733" : "#0b1a3b";
+    ctx.fillRect(60, y, width - 120, rowH - 10);
+
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "900 26px Arial";
+    ctx.textAlign = "left";
+    ctx.fillText(`${rank}.`, 82, y + 48);
+
+    ctx.fillStyle = "#e2e8f0";
+    ctx.font = "800 25px Arial";
+
+    const name = String(p.name || "").length > 28
+      ? String(p.name || "").slice(0, 25) + "..."
+      : String(p.name || "");
+
+    ctx.fillText(name, 180, y + 48);
+
+    ctx.fillStyle = "#facc15";
+    ctx.font = "900 28px Arial";
+    ctx.textAlign = "right";
+    ctx.fillText(String(p.points), width - 90, y + 48);
+  });
+
+  ctx.fillStyle = "#94a3b8";
+  ctx.font = "500 16px Arial";
+  ctx.textAlign = "center";
+  ctx.fillText("Puanlar güncel lig tablosuna göre hazırlanmıştır.", width / 2, height - 58);
+
+  const link = document.createElement("a");
+  link.download = "4-10-siralama.png";
+  link.href = canvas.toDataURL("image/png");
+  link.click();
+}
   
 function downloadWinnersImage() {
   const top3 = leaderboardRows.slice(0, 3);
@@ -1490,7 +1609,7 @@ ctx.strokeRect(24, 24, width - 48, height - 48);
 ctx.textAlign = "center";
 ctx.fillStyle = navy;
 ctx.font = "900 42px Arial";
-ctx.fillText("FIFA 2026 Dünya Kupası", width / 2, 90);
+ctx.fillText("FIFA Dünya Kupası 2026", width / 2, 90);
 
 ctx.font = "900 34px Arial";
 ctx.fillText("Nihai Puan Durumu", width / 2, 138);
@@ -1616,6 +1735,10 @@ onClick={() => {
   <>
     <button style={css.btn(true)} onClick={downloadTop10Image}>
       İlk 10 Görselini İndir
+    </button>
+
+    <button style={css.btn(true)} onClick={downloadRank4To10Image}>
+      4-10 Görselini İndir
     </button>
 
     <button style={css.btn(true)} onClick={downloadWinnersImage}>
