@@ -1462,29 +1462,42 @@ function downloadWinnersImage() {
 
   const ctx = canvas.getContext("2d");
 
-  // Arka plan
-  ctx.fillStyle = "#071634";
-  ctx.fillRect(0, 0, width, height);
+  // Altın gradient arka plan
+const bg = ctx.createLinearGradient(0, 0, 0, height);
+bg.addColorStop(0, "#facc15");
+bg.addColorStop(0.5, "#fde68a");
+bg.addColorStop(1, "#eab308");
 
-  // Dış çerçeve
-  ctx.strokeStyle = "#facc15";
-  ctx.lineWidth = 8;
-  ctx.strokeRect(24, 24, width - 48, height - 48);
+ctx.fillStyle = bg;
+ctx.fillRect(0, 0, width, height);
 
-  // Başlık
-  ctx.textAlign = "center";
-  ctx.fillStyle = "#facc15";
-  ctx.font = "900 40px Arial";
-  ctx.fillText("FIFA 2026 Dünya Kupası", width / 2, 90);
+// Watermark
+ctx.save();
+ctx.globalAlpha = 0.12;
+ctx.fillStyle = "#071634";
+ctx.font = "900 260px Arial";
+ctx.textAlign = "center";
+ctx.fillText("🏆", width / 2, 575);
+ctx.restore();
 
-  ctx.fillStyle = "#e2e8f0";
-  ctx.font = "700 32px Arial";
-  ctx.fillText("Nihai Puan Durumu", width / 2, 138);
+// Dış çerçeve
+ctx.strokeStyle = "#071634";
+ctx.lineWidth = 10;
+ctx.strokeRect(24, 24, width - 48, height - 48);
 
-  // Alt başlık
-  ctx.fillStyle = "#94a3b8";
-  ctx.font = "500 20px Arial";
-  ctx.fillText("Şampiyonlar", width / 2, 175);
+// Başlık
+ctx.textAlign = "center";
+ctx.fillStyle = "#071634";
+ctx.font = "900 42px Arial";
+ctx.fillText("FIFA 2026 Dünya Kupası", width / 2, 90);
+
+ctx.font = "900 34px Arial";
+ctx.fillText("Nihai Puan Durumu", width / 2, 138);
+
+// Alt başlık
+ctx.fillStyle = "#071634";
+ctx.font = "900 30px Arial";
+ctx.fillText("Şampiyonlar", width / 2, 185);
 
   const medals = ["🥇", "🥈", "🥉"];
   const medalColors = ["#facc15", "#cbd5e1", "#cd7f32"];
@@ -1495,7 +1508,7 @@ function downloadWinnersImage() {
     const y = startY + index * rowHeight;
 
     // Kutu
-    ctx.fillStyle = "rgba(250,204,21,0.10)";
+    ctx.fillStyle = "#071634";
     ctx.strokeStyle = medalColors[index];
     ctx.lineWidth = 3;
     roundRect(ctx, 110, y, 980, 110, 20, true, true);
