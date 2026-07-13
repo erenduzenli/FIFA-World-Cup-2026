@@ -1597,9 +1597,9 @@ ctx.fillText("Şampiyonlar", width / 2, 188);
 
     // Kutu
     ctx.fillStyle = "#071634";
-    ctx.strokeStyle = medalColors[index];
-    ctx.lineWidth = 3;
-    roundRect(ctx, 110, y, 980, 90, 18, true, true);
+ctx.strokeStyle = "transparent";
+ctx.lineWidth = 0;
+roundRect(ctx, 110, y, 980, 90, 18, true, false);
 
 const centerY = y + 58;
 
