@@ -1604,23 +1604,23 @@ ctx.fillText("Şampiyonlar", width / 2, 188);
 const centerY = y + 58;
 
 // Sıra / madalya
-ctx.font = "900 34px Arial";
+ctx.font = "900 38px Arial";
 ctx.fillStyle = medalColors[index];
 ctx.textAlign = "left";
 ctx.fillText(medals[index], 150, centerY);
 
-ctx.font = "900 34px Arial";
+ctx.font = "900 38px Arial";
 ctx.fillText(`${index + 1}.`, 220, centerY);
 
 // İsim
 ctx.fillStyle = medalColors[index];
-ctx.font = "900 34px Arial";
+ctx.font = "900 38px Arial";
 ctx.fillText(player.name, 300, centerY);
 
 // Puan
 ctx.textAlign = "right";
 ctx.fillStyle = medalColors[index];
-ctx.font = "900 34px Arial";
+ctx.font = "900 38px Arial";
 ctx.fillText(String(player.points), 1030, centerY);
 
 
